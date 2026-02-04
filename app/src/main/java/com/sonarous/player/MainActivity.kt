@@ -269,8 +269,8 @@ fun requestInitPermissions(
 fun LcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 34) {
-            "${text.removeRange(34 until text.length)}...".uppercase()
+        text = if (text.length > 28) {
+            "${text.removeRange(28 until text.length)}...".uppercase()
         } else {
             text.uppercase()
         },
@@ -321,7 +321,7 @@ fun PlayerLargeLcdText(text: String, modifier: Modifier = Modifier, viewModel: P
 fun PlayerLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 34) {
+        text = if (text.length > 30) {
             "${text.removeRange(34 until text.length)}...".uppercase()
         } else {
             text.uppercase()

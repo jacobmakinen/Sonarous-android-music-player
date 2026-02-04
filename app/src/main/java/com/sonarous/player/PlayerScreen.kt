@@ -42,7 +42,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
@@ -684,8 +686,6 @@ fun AudioEffectMenu(
     audioProcessor: PlayerService.SpectrumAnalyzer,
     mediaController: MediaController?,
 ) {
-    val speed = TmpAudioEffectValue(remember { mutableFloatStateOf(audioProcessor.speed) })
-    val pitch = TmpAudioEffectValue(remember { mutableFloatStateOf(audioProcessor.pitch) })
     val popupOffset =
         if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
             IntOffset(175, -345)
@@ -722,8 +722,8 @@ fun AudioEffectMenu(
             offset = popupOffset,
             onDismissRequest = {
                 viewModel.audioEffectMenuExpanded = false
-                speed.value = mutableFloatStateOf(audioProcessor.speed)
-                pitch.value = mutableFloatStateOf(audioProcessor.pitch)
+                viewModel.audioEffectSpeed = audioProcessor.speed
+                viewModel.audioEffectPitch = audioProcessor.pitch
             },
             properties = PopupProperties(
                 focusable = true,
@@ -751,10 +751,11 @@ fun AudioEffectMenu(
                 ) {
                     val sliderHeight = 120.dp // Is read as width due to rotation
                     // Speed slider
-                    SpeedPitchSlider(viewModel, sliderColumnWidth, sliderHeight, speed, "Speed")
-                    SpeedPitchSlider(viewModel, sliderColumnWidth, sliderHeight, pitch, "Pitch")
+                    SpeedPitchSlider(viewModel, sliderColumnWidth, sliderHeight, "Speed")
+                    JointSpeedPitchSlider(viewModel)
+                    SpeedPitchSlider(viewModel, sliderColumnWidth, sliderHeight, "Pitch")
                 }
-                ApplyChangesButton(mediaController, audioProcessor, speed, pitch, viewModel)
+                ApplyChangesButton(mediaController, audioProcessor, viewModel)
             }
         }
     }
@@ -765,8 +766,6 @@ fun AudioEffectMenu(
 fun ApplyChangesButton(
     mediaController: MediaController?,
     audioProcessor: PlayerService.SpectrumAnalyzer,
-    speed: TmpAudioEffectValue,
-    pitch: TmpAudioEffectValue,
     viewModel: PlayerViewModel
 ) {
     Row(
@@ -782,8 +781,8 @@ fun ApplyChangesButton(
             onClick = {
                 val tmpIsPlaying = viewModel.isPlaying
                 if (tmpIsPlaying) { mediaController?.pause() }
-                audioProcessor.speed = speed.value.floatValue
-                audioProcessor.pitch = pitch.value.floatValue
+                audioProcessor.speed = viewModel.audioEffectSpeed
+                audioProcessor.pitch = viewModel.audioEffectPitch
                 audioProcessor.usingSonicProcessor = audioProcessor.pitch != 1f || audioProcessor.speed != 1f
                 audioProcessor.configure(
                     AudioProcessor.AudioFormat(
@@ -811,7 +810,7 @@ fun ApplyChangesButton(
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, sliderHeight: Dp, value: TmpAudioEffectValue, type: String) {
+fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, sliderHeight: Dp, type: String) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -844,11 +843,23 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
                     rotationZ = -90f
                 )
                 .size(sliderHeight, 15.dp),
-            value = value.value.floatValue,
+            value = (
+                    if (type == "Speed") {
+                        viewModel.audioEffectSpeed
+                    } else {
+                        viewModel.audioEffectPitch
+                    }
+                    ),
             valueRange = 0f..2f,
             steps = 39, // For 0.05 increments
             onValueChange = {
-                value.value.floatValue = it
+                (
+                        if (type == "Speed") {
+                            viewModel.audioEffectSpeed = it
+                        } else {
+                            viewModel.audioEffectPitch = it
+                        }
+                )
             },
             thumb = {
                 SliderThumb(viewModel)
@@ -858,9 +869,87 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
             },
         )
         LargeLcdText(
-            "%.2f".format(value.value.floatValue),
+            "%.2f".format(
+                    if (type == "Speed") {
+                        viewModel.audioEffectSpeed
+                    } else {
+                        viewModel.audioEffectPitch
+                    }
+                    ),
             viewModel = viewModel,
             lineHeight = 1.sp
+        )
+    }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+fun JointSpeedPitchSlider(viewModel: PlayerViewModel) {
+    var combinedValue by remember {
+        mutableFloatStateOf(
+            if (viewModel.audioEffectSpeed == viewModel.audioEffectPitch) {
+                viewModel.audioEffectSpeed
+            } else {
+                (viewModel.audioEffectPitch + viewModel.audioEffectSpeed) / 2f
+            }
+        )
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(10.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Slider(
+            modifier = Modifier
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(
+                        Constraints.fixed(
+                            width = 120.dp.roundToPx(),
+                            height = 15.dp.roundToPx()
+                        )
+                    )
+                    layout(15.dp.roundToPx(), 120.dp.roundToPx()) {
+                        placeable.place(
+                            x = -(120.dp.roundToPx() - 15.dp.roundToPx()) / 2,
+                            y = (120.dp.roundToPx() - 15.dp.roundToPx()) / 2,
+                        )
+                    }
+                }
+                .graphicsLayer(
+                    rotationZ = -90f
+                )
+                .size(120.dp, 15.dp),
+            value = combinedValue,
+            valueRange = 0f..2f,
+            steps = 39, // For 0.05 increments
+            onValueChange = {
+                combinedValue = it
+                viewModel.audioEffectSpeed = it
+                viewModel.audioEffectPitch = it
+            },
+            thumb = { CombinedSliderThumb() },
+            track = { Spacer(Modifier.width(120.dp)) },
+        )
+    }
+}
+
+@Composable
+fun CombinedSliderThumb() {
+    Canvas(
+        modifier = Modifier
+            .size(30.dp)
+    ) {
+        val path = Path()
+        path.moveTo(45f,-5f)
+        path.relativeLineTo(0f, 40f)
+        drawPath(
+            path = path,
+            color = Color.White,
+            style = Stroke(
+                width = 1f
+            )
         )
     }
 }

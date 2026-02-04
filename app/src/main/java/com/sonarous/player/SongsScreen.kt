@@ -180,6 +180,7 @@ fun SongTextColumn(songInfo: SongInfo, viewModel: PlayerViewModel) {
             text = songInfo.artist,
             viewModel = viewModel
         )
+        Spacer(Modifier.height(2.5.dp))
         LcdText( // Album name
             text = songInfo.album,
             viewModel = viewModel

@@ -73,6 +73,8 @@ class PlayerViewModel : ViewModel() {
     var loadingFinished by mutableStateOf(false)
     var showEqualiser by mutableStateOf(true)
     var audioEffectMenuExpanded by mutableStateOf(false)
+    var audioEffectSpeed by mutableFloatStateOf(1f)
+    var audioEffectPitch by mutableFloatStateOf(1f)
     val menuWidth by mutableStateOf(120.dp)
     //========================= More options screen =========================//
     var showMoreOptions by mutableStateOf(false)
