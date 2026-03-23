@@ -2,9 +2,9 @@
 A music player written in kotlin for android version tiramisu and above.
 
 ## Highlights
-- It has a spectrum analyzer to show a 7 band range of the sound currently being played.
-- The pitch and speed of sound can be changed
-- The UI's colors can be customised
+- It has a spectrum analyzer to show a 7 band range of the frequency of the music currently being played.
+- The pitch and speed of music can be changed
+- The UI's colors can be highly customised
 
 ## Installation
 To install, download the apk and install it on an android phone
