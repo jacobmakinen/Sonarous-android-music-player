@@ -153,6 +153,7 @@ class MainActivity : ComponentActivity() {
             albumInfo = viewModel.mediaInfoPair!!.second
             val listener = PlayerListener(applicationContext, viewModel, mediaController)
             mediaController.addListener(listener)
+
             setContent {
                 Audio_playerTheme {
                     NavHost(
@@ -163,6 +164,7 @@ class MainActivity : ComponentActivity() {
                         albumInfo,
                         applicationContext
                     )
+
                     if (viewModel.isPlaying) {
                         LaunchedEffect(Unit) {
                             while (true) {
@@ -269,8 +271,8 @@ fun requestInitPermissions(
 fun LcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 28) {
-            "${text.removeRange(28 until text.length)}...".uppercase()
+        text = if (text.length > 29) {
+            "${text.removeRange(30 until text.length)}...".uppercase()
         } else {
             text.uppercase()
         },
@@ -304,8 +306,8 @@ fun LargeLcdText(
 fun PlayerLargeLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 30) {
-            "${text.removeRange(34 until text.length)}...".uppercase()
+        text = if (text.length > 31) {
+            "${text.removeRange(32 until text.length)}...".uppercase()
         } else {
             text.uppercase()
         },
@@ -321,8 +323,8 @@ fun PlayerLargeLcdText(text: String, modifier: Modifier = Modifier, viewModel: P
 fun PlayerLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 30) {
-            "${text.removeRange(34 until text.length)}...".uppercase()
+        text = if (text.length > 31) {
+            "${text.removeRange(32 until text.length)}...".uppercase()
         } else {
             text.uppercase()
         },

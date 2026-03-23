@@ -75,7 +75,6 @@ fun AlbumScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (albumInfo.count() % elementsPerRow == 0) {
-                        Log.d("MusicPlayer", "First")
                         for (index in 0 until elementsPerRow) {
                             Column(
                                 modifier = Modifier
@@ -106,9 +105,7 @@ fun AlbumScreen(
                             }
                         }
                     } else {
-                        Log.d("MusicPlayer", "Second")
                         if (rowNumbers != rowIndex + 1) {
-                            Log.d("MusicPlayer", "Second:First")
                             for (index in 0..elementsPerRow - 1) {
                                 Column(
                                     modifier = Modifier
@@ -139,7 +136,6 @@ fun AlbumScreen(
                                 }
                             }
                         } else {
-                            Log.d("MusicPlayer", "Second:Second")
                             for (index in 0 until (albumInfo.count() % elementsPerRow)) {
                                 Column(
                                     modifier = Modifier

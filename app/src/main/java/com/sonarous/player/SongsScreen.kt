@@ -55,6 +55,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 @ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
@@ -69,23 +70,32 @@ fun SongsScreen(
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,
     )
+    val mediaItemList by remember {
+        derivedStateOf {
+            val tmpList = mutableListOf<MediaItem>()
+            for (song in songInfo) {
+                tmpList.add(MediaItem.fromUri(song.songUri))
+            }
+            tmpList
+        }
+    }
     val lazyColumnSize = songInfo.count()
     val playSongCallback = remember {
         { i: Int ->
             viewModel.queueingSongs = false
             viewModel.shuffleMode = false
+
             mediaController?.clearMediaItems()
-            for (j in 0 until songInfo.count()) {
-                mediaController?.addMediaItem(MediaItem.fromUri(songInfo[j].songUri))
-            }
+            mediaController?.addMediaItems(mediaItemList)
             mediaController?.prepare()
             mediaController?.seekTo(i, 0L)
             mediaController?.play()
+
+            pagerState.requestScrollToPage(1)
             viewModel.queuedSongs = songInfo.toMutableStateList()
             viewModel.updateSongDuration((songInfo[i].time).toLong())
             viewModel.songIndex = i
             viewModel.playingFromSongsScreen = true
-            pagerState.requestScrollToPage(1)
         }
     }
     Box {

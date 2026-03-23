@@ -73,7 +73,7 @@ fun NavHost(
         navController = navController,
         startDestination = "pager",
         modifier = Modifier
-            .background(viewModel.backgroundColor)
+            .background(viewModel.backgroundColor),
     ) {
         composable(route = "pager") {
             Pager(mediaController, audioProcessor, viewModel, songInfo, albumInfo, navController)
