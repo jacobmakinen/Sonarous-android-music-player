@@ -7,6 +7,9 @@ import android.content.res.Configuration
 import androidx.annotation.OptIn
 import androidx.collection.IntList
 import androidx.collection.intListOf
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -74,6 +77,10 @@ fun NavHost(
         startDestination = "pager",
         modifier = Modifier
             .background(viewModel.backgroundColor),
+        enterTransition = { fadeIn(animationSpec = tween(300)) },
+        exitTransition = { fadeOut(animationSpec = tween(300)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+        popExitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
         composable(route = "pager") {
             Pager(mediaController, audioProcessor, viewModel, songInfo, albumInfo, navController)
