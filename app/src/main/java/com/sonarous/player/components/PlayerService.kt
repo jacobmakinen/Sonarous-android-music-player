@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.components
 
 import android.content.Context
 import android.os.Handler
@@ -15,12 +15,14 @@ import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.sonarous.player.VisualiserData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.jtransforms.fft.DoubleFFT_1D
 import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
+import kotlin.math.cos
 import kotlin.math.sqrt
 
 @UnstableApi
@@ -113,7 +115,7 @@ class PlayerService : MediaSessionService() {
                         fftArray[i] = 0.0
                         bufferVolume += 0.0
                     }
-                    val window = 0.5 * (1 - kotlin.math.cos(2.0 * Math.PI * i / (ARRAY_SIZE - 1))) // Hann window to reduce sound leakage
+                    val window = 0.5 * (1 - cos(2.0 * Math.PI * i / (ARRAY_SIZE - 1))) // Hann window to reduce sound leakage
                     fftArray[i] = fftArray[i] * window
                 }
                 //================================= Graphical equaliser data =================================//

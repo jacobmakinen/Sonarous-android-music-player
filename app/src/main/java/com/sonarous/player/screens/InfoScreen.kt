@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.sonarous.player.BackButtonRow
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
 import com.sonarous.player.ui.theme.lcdFont
 
 @Composable

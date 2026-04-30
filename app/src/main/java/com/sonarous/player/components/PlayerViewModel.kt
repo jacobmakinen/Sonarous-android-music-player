@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.components
 
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.media3.session.MediaController
+import com.sonarous.player.AlbumInfo
+import com.sonarous.player.SettingsManager
+import com.sonarous.player.SongInfo
 import com.sonarous.player.ui.theme.LcdBlueWhite
 import com.sonarous.player.ui.theme.LcdGrey
 
@@ -77,7 +80,7 @@ class PlayerViewModel : ViewModel() {
     var audioEffectPitch by mutableFloatStateOf(1f)
     val menuWidth by mutableStateOf(120.dp)
     //========================= More options screen =========================//
-    var showMoreOptions by mutableStateOf(false)
+    var showMoreSongOptions by mutableStateOf(false)
     lateinit var moreOptionsSelectedSong: SongInfo
     //========================= Init from Json =========================//
     fun initViewModel(context: Context) {

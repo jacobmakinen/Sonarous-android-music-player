@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.compose.animation.core.EaseOutSine
 import androidx.compose.animation.core.TweenSpec
@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
+import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.ui.theme.dotoFamily
 import kotlinx.coroutines.delay
 

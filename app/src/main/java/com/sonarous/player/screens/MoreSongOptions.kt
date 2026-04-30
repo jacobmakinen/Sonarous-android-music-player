@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +22,10 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
+import com.sonarous.player.LcdText
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.SongInfo
 
 @Composable
 fun MoreSongOptions(viewModel: PlayerViewModel, mediaController: MediaController?) {
@@ -34,7 +38,7 @@ fun MoreSongOptions(viewModel: PlayerViewModel, mediaController: MediaController
     ) {
         Popup(
             onDismissRequest = {
-                viewModel.showMoreOptions = !viewModel.showMoreOptions
+                viewModel.showMoreSongOptions = !viewModel.showMoreSongOptions
             },
             properties = PopupProperties(
                 dismissOnBackPress = true,
@@ -57,6 +61,29 @@ fun MoreSongOptions(viewModel: PlayerViewModel, mediaController: MediaController
                 AddSongToQueue(viewModel, mediaController)
             }
         }
+    }
+}
+
+@Composable
+fun ReplicateAlbumArt(viewModel: PlayerViewModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(30.dp)
+            .clickable(
+                onClick = {
+                    viewModel
+                }
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.queue_music),
+            contentDescription = "Add song to queue",
+            tint = viewModel.iconColor,
+        )
+        LcdText("Add song to queue", viewModel = viewModel)
     }
 }
 
@@ -101,5 +128,5 @@ fun addSongToQueueLogic(mediaController: MediaController?, song: SongInfo, viewM
         mediaController?.addMediaItem(MediaItem.fromUri(song.songUri))
         viewModel.songIndex = 0
     }
-    viewModel.showMoreOptions = false
+    viewModel.showMoreSongOptions = false
 }

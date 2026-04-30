@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -37,6 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.navigation.NavController
+import com.sonarous.player.LargeLcdText
+import com.sonarous.player.LcdText
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.SongInfo
 
 @ExperimentalFoundationApi
 @OptIn(ExperimentalMaterial3Api::class)

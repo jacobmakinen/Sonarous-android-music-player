@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import android.content.res.Configuration
 import androidx.annotation.OptIn
@@ -63,6 +63,15 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
+import com.sonarous.player.LargeLcdText
+import com.sonarous.player.LcdText
+import com.sonarous.player.PlayerLargeLcdText
+import com.sonarous.player.PlayerLcdText
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.SongInfo
+import com.sonarous.player.SpectrumAnalyzer
 import java.lang.Thread.sleep
 
 @ExperimentalMaterial3Api
@@ -870,12 +879,12 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
         )
         LargeLcdText(
             "%.2f".format(
-                    if (type == "Speed") {
-                        viewModel.audioEffectSpeed
-                    } else {
-                        viewModel.audioEffectPitch
-                    }
-                    ),
+                if (type == "Speed") {
+                    viewModel.audioEffectSpeed
+                } else {
+                    viewModel.audioEffectPitch
+                }
+            ),
             viewModel = viewModel,
             lineHeight = 1.sp
         )

@@ -57,6 +57,19 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.screens.AlbumScreen
+import com.sonarous.player.screens.AlbumSongsScreen
+import com.sonarous.player.screens.HorizontalColorPicker
+import com.sonarous.player.screens.HorizontalThemeChange
+import com.sonarous.player.screens.InfoScreen
+import com.sonarous.player.screens.PlayerScreen
+import com.sonarous.player.screens.PortraitColorPicker
+import com.sonarous.player.screens.PortraitThemeChange
+import com.sonarous.player.screens.Settings
+import com.sonarous.player.screens.SongQueue
+import com.sonarous.player.screens.SongsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import android.content.Context
 import androidx.compose.foundation.ScrollState
@@ -61,6 +61,14 @@ import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.sonarous.player.BackButtonRow
+import com.sonarous.player.LargeLcdText
+import com.sonarous.player.LcdText
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.SettingsData
+import com.sonarous.player.SettingsManager
+import com.sonarous.player.increaseBrightness
 
 @Composable
 fun Settings(navController: NavController, viewModel: PlayerViewModel) {

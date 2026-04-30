@@ -40,6 +40,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.ui.theme.dotoFamily
 import com.sonarous.player.ui.theme.orbitronFamily
 import kotlinx.coroutines.delay

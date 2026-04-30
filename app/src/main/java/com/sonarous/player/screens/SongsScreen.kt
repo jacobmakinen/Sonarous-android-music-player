@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.Canvas
@@ -54,8 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
+import com.sonarous.player.LargeLcdText
+import com.sonarous.player.LcdText
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.SongInfo
+import com.sonarous.player.increaseBrightness
 import kotlinx.coroutines.launch
-import kotlin.concurrent.thread
 
 @ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
@@ -122,7 +127,7 @@ fun SongsScreen(
             }
             ScrollBar(lazyColumnState, viewModel, lazyColumnSize.toFloat())
         }
-        if (viewModel.showMoreOptions) {
+        if (viewModel.showMoreSongOptions) {
             MoreSongOptions(viewModel, mediaController)
         }
     }
@@ -204,13 +209,13 @@ fun MoreOptionsButton(song: SongInfo, viewModel: PlayerViewModel) {
         modifier = Modifier
             .size(50.dp),
         onClick = {
-            viewModel.showMoreOptions = !viewModel.showMoreOptions
+            viewModel.showMoreSongOptions = !viewModel.showMoreSongOptions
             viewModel.moreOptionsSelectedSong = song
         },
         colors = IconButtonDefaults.iconButtonColors(
             contentColor = viewModel.iconColor,
         ),
-        enabled = !viewModel.showMoreOptions
+        enabled = !viewModel.showMoreSongOptions
     ) {
         Icon(
             painter = painterResource(R.drawable.more_menu),
