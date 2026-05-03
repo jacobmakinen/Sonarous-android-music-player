@@ -2,6 +2,7 @@ package com.sonarous.player
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
@@ -36,13 +37,14 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.sonarous.player.ui.theme.Audio_playerTheme
-import com.sonarous.player.ui.theme.lcdFont
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.sonarous.player.components.PlayerListener
 import com.sonarous.player.components.PlayerService
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.screens.BasicLoadingScreen
+import com.sonarous.player.screens.editSongAlbumArt
+import com.sonarous.player.ui.theme.shareTechFont
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -121,6 +123,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        viewModel.editSongLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode == RESULT_OK && viewModel.replicatedAlbumArt != null) {
+                editSongAlbumArt(this,viewModel.moreOptionsSelectedSong.songUri, viewModel.replicatedAlbumArt!!, viewModel)
+            }
+        }
+
+        // --------------------- Loading --------------------- //
+
         // Sets the settings' variables from the json
         viewModel.initViewModel(applicationContext)
 
@@ -272,24 +284,24 @@ fun requestInitPermissions(
 
 // Uppercase as lcd font only supports capitals
 @Composable
-fun LcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
+fun Text(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 29) {
-            "${text.removeRange(30 until text.length)}...".uppercase()
+        text = if (text.length > 25) {
+            "${text.removeRange(26 until text.length)}..."
         } else {
-            text.uppercase()
+            text
         },
         color = viewModel.textColor,
         fontSize = 15.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
-        lineHeight = 4.sp
+        lineHeight = 4.sp,
     )
 }
 
 @Composable
-fun LargeLcdText(
+fun LargeText(
     text: String,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel,
@@ -297,61 +309,61 @@ fun LargeLcdText(
 ) {
     Text(
         modifier = modifier,
-        text = text.uppercase(),
+        text = text,
         color = viewModel.textColor,
         fontSize = 20.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         lineHeight = lineHeight
     )
 }
 
 @Composable
-fun PlayerLargeLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
+fun PlayerLargeText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
         text = if (text.length > 31) {
-            "${text.removeRange(32 until text.length)}...".uppercase()
+            "${text.removeRange(32 until text.length)}..."
         } else {
-            text.uppercase()
+            text
         },
         color = viewModel.textColor,
         fontSize = 25.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         textAlign = TextAlign.Center,
     )
 }
 
 @Composable
-fun PlayerLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
+fun PlayerText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
         text = if (text.length > 31) {
-            "${text.removeRange(32 until text.length)}...".uppercase()
+            "${text.removeRange(32 until text.length)}..."
         } else {
-            text.uppercase()
+            text
         },
         color = viewModel.textColor,
         fontSize = 20.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         textAlign = TextAlign.Center,
     )
 }
 
 @Composable
-fun AlbumScreenLcdText(
+fun AlbumScreenText(
     text: String,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel
 ) {
     Text(
         modifier = modifier,
-        text = text.uppercase(),
+        text = text,
         color = viewModel.textColor,
         fontSize = 15.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         lineHeight = 15.sp
     )

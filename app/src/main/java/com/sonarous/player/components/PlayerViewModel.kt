@@ -1,6 +1,9 @@
 package com.sonarous.player.components
 
 import android.content.Context
+import android.graphics.Bitmap
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -9,6 +12,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -81,7 +85,9 @@ class PlayerViewModel : ViewModel() {
     val menuWidth by mutableStateOf(120.dp)
     //========================= More options screen =========================//
     var showMoreSongOptions by mutableStateOf(false)
+    var replicatedAlbumArt: Bitmap? = null
     lateinit var moreOptionsSelectedSong: SongInfo
+    var editSongLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
     //========================= Init from Json =========================//
     fun initViewModel(context: Context) {
         val settingsManager = SettingsManager(context)

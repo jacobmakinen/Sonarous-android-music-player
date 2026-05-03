@@ -96,7 +96,7 @@ fun NavHost(
         popExitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
         composable(route = "pager") {
-            Pager(mediaController, audioProcessor, viewModel, songInfo, albumInfo, navController)
+            Pager(mediaController, audioProcessor, viewModel, songInfo, albumInfo, navController, context)
         }
         composable(route = "album_songs_screen") {
             AlbumSongsScreen(
@@ -141,7 +141,8 @@ fun Pager(
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
-    navController: NavController
+    navController: NavController,
+    context: Context
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
@@ -160,7 +161,9 @@ fun Pager(
             viewModel, songInfo,
             albumInfo, navController,
             selectedTab, pagerState,
-            scope, iconList
+            scope,
+            iconList,
+            context
         )
     } else {
         HorizontalTabRow(
@@ -168,7 +171,9 @@ fun Pager(
             viewModel, songInfo,
             albumInfo, navController,
             selectedTab, pagerState,
-            scope, iconList
+            scope,
+            iconList,
+            context
         )
     }
 }
@@ -186,7 +191,8 @@ fun HorizontalTabRow(
     selectedTab: State<Int>,
     pagerState: PagerState,
     scope: CoroutineScope,
-    iconList: IntList
+    iconList: IntList,
+    context: Context
 ) {
     Column(
         modifier = Modifier
@@ -287,7 +293,7 @@ fun HorizontalTabRow(
                         ) {
                             DropdownMenuItem(
                                 text = {
-                                    LcdText(
+                                    Text(
                                         "Settings",
                                         viewModel = viewModel
                                     )
@@ -299,7 +305,7 @@ fun HorizontalTabRow(
                             )
                             DropdownMenuItem(
                                 text = {
-                                    LcdText(
+                                    Text(
                                         "Info",
                                         viewModel = viewModel
                                     )
@@ -322,7 +328,7 @@ fun HorizontalTabRow(
             when (currentPage) {
                 0 -> SongQueue(viewModel, mediaController)
                 1 -> PlayerScreen(mediaController, spectrumAnalyzer, viewModel, songInfo)
-                2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState)
+                2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController, 6)
             }
         }
@@ -342,7 +348,8 @@ fun PortraitTabRow(
     selectedTab: State<Int>,
     pagerState: PagerState,
     scope: CoroutineScope,
-    iconList: IntList
+    iconList: IntList,
+    context: Context
 ) {
     Column(
         modifier = Modifier
@@ -442,7 +449,7 @@ fun PortraitTabRow(
                         ) {
                             DropdownMenuItem(
                                 text = {
-                                    LcdText(
+                                    Text(
                                         "Settings",
                                         viewModel = viewModel
                                     )
@@ -454,7 +461,7 @@ fun PortraitTabRow(
                             )
                             DropdownMenuItem(
                                 text = {
-                                    LcdText(
+                                    Text(
                                         "Info",
                                         viewModel = viewModel
                                     )
@@ -477,7 +484,7 @@ fun PortraitTabRow(
             when (currentPage) {
                 0 -> SongQueue(viewModel, mediaController)
                 1 -> PlayerScreen(mediaController, spectrumAnalyzer, viewModel, songInfo)
-                2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState)
+                2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
             }
         }
@@ -513,6 +520,6 @@ fun BackButtonRow(viewModel: PlayerViewModel, navController: NavController, titl
             )
         )
         Spacer(modifier = Modifier.width(5.dp))
-        LargeLcdText(title, viewModel = viewModel)
+        LargeText(title, viewModel = viewModel)
     }
 }

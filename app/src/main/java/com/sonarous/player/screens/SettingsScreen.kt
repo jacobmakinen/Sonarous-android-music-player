@@ -55,20 +55,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sonarous.player.ui.theme.LcdGrey
-import com.sonarous.player.ui.theme.lcdFont
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.sonarous.player.BackButtonRow
-import com.sonarous.player.LargeLcdText
-import com.sonarous.player.LcdText
+import com.sonarous.player.LargeText
+import com.sonarous.player.Text
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SettingsData
 import com.sonarous.player.SettingsManager
 import com.sonarous.player.increaseBrightness
+import com.sonarous.player.ui.theme.shareTechFont
 
 @Composable
 fun Settings(navController: NavController, viewModel: PlayerViewModel) {
@@ -111,7 +111,7 @@ fun Settings(navController: NavController, viewModel: PlayerViewModel) {
                         tint = viewModel.iconColor
                     )
                     Spacer(Modifier.width(5.dp))
-                    LcdText(
+                    Text(
                         "Customisation",
                         viewModel = viewModel
                     )
@@ -172,7 +172,7 @@ fun HorizontalThemeChange(viewModel: PlayerViewModel, navController: NavControll
                 modifier = Modifier
                     .width(5.dp)
             )
-            LargeLcdText("Theme change", viewModel = viewModel)
+            LargeText("Theme change", viewModel = viewModel)
         }
         Spacer(
             modifier = Modifier
@@ -257,7 +257,7 @@ fun PortraitThemeChange(viewModel: PlayerViewModel, navController: NavController
                 modifier = Modifier
                     .width(5.dp)
             )
-            LargeLcdText("Theme change", viewModel = viewModel)
+            LargeText("Theme change", viewModel = viewModel)
         }
         Spacer(
             modifier = Modifier
@@ -304,7 +304,7 @@ fun EQVisibilitySwitch(viewModel: PlayerViewModel, tmpMiscSettings: MutableMap<S
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         var switched by remember { mutableStateOf(viewModel.showEqualiser) }
-        LcdText(
+        Text(
             "Switch equaliser on / off",
             viewModel = viewModel
         )
@@ -352,7 +352,7 @@ fun ResetToDefaultsButton(viewModel: PlayerViewModel, context: Context) {
             contentColor = viewModel.backgroundColor
         )
     ) {
-        LcdText(
+        Text(
             "Reset to defaults",
             viewModel = viewModel
         )
@@ -373,7 +373,7 @@ fun CustomColorButton(
             contentColor = viewModel.backgroundColor
         )
     ) {
-        LcdText(
+        Text(
             "Add a custom color",
             viewModel = viewModel
         )
@@ -407,7 +407,7 @@ fun SaveChangesButton(
             contentColor = viewModel.backgroundColor
         )
     ) {
-        LcdText(
+        Text(
             "Save changes",
             viewModel = viewModel
         )
@@ -449,7 +449,7 @@ fun ColourListDropDownMenu(
     ) {
         var expanded by remember { mutableStateOf(false) }
         var selectedText by remember { mutableStateOf(getKeyOfColorMap(currentColor, viewModel)) }
-        LcdText(
+        Text(
             "Change $name colour: ",
             viewModel = viewModel
         )
@@ -483,7 +483,7 @@ fun ColourListDropDownMenu(
                 ),
                 textStyle = TextStyle(
                     color = viewModel.textColor,
-                    fontFamily = lcdFont,
+                    fontFamily = shareTechFont,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp
                 )
@@ -496,7 +496,7 @@ fun ColourListDropDownMenu(
                 for (i in viewModel.colorMap.keys) {
                     DropdownMenuItem(
                         text = {
-                            LcdText(i, viewModel = viewModel)
+                            Text(i, viewModel = viewModel)
                         },
                         leadingIcon = {
                             if (i !in defaultColors){
@@ -550,7 +550,7 @@ fun ColourOtherListDropDownMenu(
     ) {
         var expanded by remember { mutableStateOf(false) }
         var selectedText by remember { mutableStateOf(getKeyOfOtherColorMap(currentColor,viewModel)) }
-        LcdText(
+        Text(
             "Change $name colour: ",
             viewModel = viewModel
         )
@@ -584,7 +584,7 @@ fun ColourOtherListDropDownMenu(
                 ),
                 textStyle = TextStyle(
                     color = viewModel.textColor,
-                    fontFamily = lcdFont,
+                    fontFamily = shareTechFont,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp
                 )
@@ -612,7 +612,7 @@ fun ColourOtherListDropDownMenu(
                             }
                         },
                         text = {
-                            LcdText(i, viewModel = viewModel)
+                            Text(i, viewModel = viewModel)
                         },
                         onClick = {
                             selectedText = i
@@ -692,7 +692,7 @@ fun HorizontalColorPicker(viewModel: PlayerViewModel, navController: NavControll
                 modifier = Modifier
                     .width(5.dp)
             )
-            LargeLcdText("Color picker", viewModel = viewModel)
+            LargeText("Color picker", viewModel = viewModel)
         }
         Row(
             modifier = Modifier
@@ -757,7 +757,7 @@ fun HorizontalColorPicker(viewModel: PlayerViewModel, navController: NavControll
                         },
                         modifier = Modifier,
                         placeholder = {
-                            LcdText(
+                            Text(
                                 "Custom color's name",
                                 viewModel = viewModel
                             )
@@ -785,7 +785,7 @@ fun HorizontalColorPicker(viewModel: PlayerViewModel, navController: NavControll
                             contentColor = viewModel.backgroundColor
                         )
                     ) {
-                        LcdText(
+                        Text(
                             "Apply",
                             viewModel = viewModel
                         )
@@ -836,7 +836,7 @@ fun PortraitColorPicker(viewModel: PlayerViewModel, navController: NavController
                 modifier = Modifier
                     .width(5.dp)
             )
-            LargeLcdText("Color picker", viewModel = viewModel)
+            LargeText("Color picker", viewModel = viewModel)
         }
         Row(
             modifier = Modifier
@@ -894,7 +894,7 @@ fun PortraitColorPicker(viewModel: PlayerViewModel, navController: NavController
                 },
                 modifier = Modifier,
                 placeholder = {
-                    LcdText(
+                    Text(
                         "Custom color's name",
                         viewModel = viewModel
                     )
@@ -922,7 +922,7 @@ fun PortraitColorPicker(viewModel: PlayerViewModel, navController: NavController
                     contentColor = viewModel.backgroundColor
                 )
             ) {
-                LcdText(
+                Text(
                     "Apply",
                     viewModel = viewModel
                 )

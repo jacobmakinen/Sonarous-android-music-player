@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.sonarous.player.AlbumInfo
-import com.sonarous.player.AlbumScreenLcdText
+import com.sonarous.player.AlbumScreenText
 import com.sonarous.player.components.PlayerViewModel
 
 @ExperimentalFoundationApi
@@ -100,7 +100,7 @@ fun AlbumScreen(
                                     contentScale = ContentScale.Crop
                                 )
                                 Spacer(Modifier.height(5.dp))
-                                AlbumScreenLcdText(
+                                AlbumScreenText(
                                     albumInfo[rowIndex * elementsPerRow + index].albumName,
                                     viewModel = viewModel,
                                 )
@@ -131,7 +131,7 @@ fun AlbumScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(Modifier.height(5.dp))
-                                    AlbumScreenLcdText(
+                                    AlbumScreenText(
                                         albumInfo[rowIndex * elementsPerRow + index].albumName,
                                         viewModel = viewModel,
                                     )
@@ -161,7 +161,7 @@ fun AlbumScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(Modifier.height(5.dp))
-                                    AlbumScreenLcdText(
+                                    AlbumScreenText(
                                         albumInfo[rowIndex * elementsPerRow + index].albumName,
                                         viewModel = viewModel,
                                     )

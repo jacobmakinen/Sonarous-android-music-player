@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.navigation.NavController
-import com.sonarous.player.LargeLcdText
-import com.sonarous.player.LcdText
+import com.sonarous.player.LargeText
+import com.sonarous.player.Text
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
@@ -92,7 +92,7 @@ fun AlbumSongsScreen(album: String, songInfo: List<SongInfo>, mediaController: M
                 modifier = Modifier
                     .width(5.dp)
             )
-            LargeLcdText(album, viewModel = viewModel)
+            LargeText(album, viewModel = viewModel)
         }
         Row(
             modifier = Modifier
@@ -165,7 +165,7 @@ fun AlbumSongsScreen(album: String, songInfo: List<SongInfo>, mediaController: M
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.Start
                         ) {
-                            LargeLcdText( //Song name
+                            LargeText( //Song name
                                 text = albumSongsList[i].name,
                                 viewModel = viewModel
                             )
@@ -173,11 +173,11 @@ fun AlbumSongsScreen(album: String, songInfo: List<SongInfo>, mediaController: M
                                 modifier = Modifier
                                     .height(5.dp)
                             )
-                            LcdText( // Artist name
+                            Text( // Artist name
                                 text = albumSongsList[i].artist,
                                 viewModel = viewModel
                             )
-                            LcdText( // Album name
+                            Text( // Album name
                                 text = albumSongsList[i].album,
                                 viewModel = viewModel
                             )

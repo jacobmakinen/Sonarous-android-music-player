@@ -1,5 +1,6 @@
 package com.sonarous.player.screens
 
+import android.content.Context
 import androidx.annotation.OptIn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -54,8 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import com.sonarous.player.LargeLcdText
-import com.sonarous.player.LcdText
+import com.sonarous.player.LargeText
+import com.sonarous.player.Text
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
@@ -69,7 +70,8 @@ fun SongsScreen(
     songInfo: List<SongInfo>,
     mediaController: MediaController?,
     viewModel: PlayerViewModel,
-    pagerState: PagerState
+    pagerState: PagerState,
+    context: Context
 ) {
     val lazyColumnState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0,
@@ -128,7 +130,7 @@ fun SongsScreen(
             ScrollBar(lazyColumnState, viewModel, lazyColumnSize.toFloat())
         }
         if (viewModel.showMoreSongOptions) {
-            MoreSongOptions(viewModel, mediaController)
+            MoreSongOptions(viewModel, mediaController, context)
         }
     }
 }
@@ -183,7 +185,7 @@ fun SongTextColumn(songInfo: SongInfo, viewModel: PlayerViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        LargeLcdText( //Song name
+        LargeText( //Song name
             text = songInfo.name,
             viewModel = viewModel
         )
@@ -191,12 +193,12 @@ fun SongTextColumn(songInfo: SongInfo, viewModel: PlayerViewModel) {
             modifier = Modifier
                 .height(5.dp)
         )
-        LcdText( // Artist name
+        Text( // Artist name
             text = songInfo.artist,
             viewModel = viewModel
         )
         Spacer(Modifier.height(2.5.dp))
-        LcdText( // Album name
+        Text( // Album name
             text = songInfo.album,
             viewModel = viewModel
         )

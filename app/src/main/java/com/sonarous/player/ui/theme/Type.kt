@@ -11,11 +11,11 @@ val dotoFamily = FontFamily(
     Font(R.font.doto_light, FontWeight.Light),
 )
 
-val lcdFont = FontFamily(
-    Font(R.font.lcd, FontWeight.Normal)
-)
-
 val orbitronFamily = FontFamily(
     Font(R.font.orbitron_regular, weight = FontWeight.Normal),
     Font(R.font.orbitron_medium, FontWeight.Medium)
+)
+
+val shareTechFont = FontFamily(
+    Font(R.font.share_tech_mono_regular, weight = FontWeight.Normal)
 )

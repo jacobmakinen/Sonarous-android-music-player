@@ -1,6 +1,7 @@
 [versions]
 agp = "8.13.2"
 colorpickerCompose = "1.1.3"
+jaudiotagger = "2.0.19"
 jtransforms = "3.2"
 kotlin = "2.2.20"
 coreKtx = "1.17.0"
@@ -27,6 +28,7 @@ androidx-media3-common = { module = "androidx.media3:media3-common", version.ref
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Exoplayer" }
 colorpicker-compose = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpickerCompose" }
+jaudiotagger = { module = "com.github.RouHim:jaudiotagger", version.ref = "jaudiotagger" }
 jtransforms = { module = "com.github.wendykierp:JTransforms", version.ref = "jtransforms" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

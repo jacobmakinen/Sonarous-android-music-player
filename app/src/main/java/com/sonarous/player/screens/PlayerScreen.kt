@@ -63,10 +63,10 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
-import com.sonarous.player.LargeLcdText
-import com.sonarous.player.LcdText
-import com.sonarous.player.PlayerLargeLcdText
-import com.sonarous.player.PlayerLcdText
+import com.sonarous.player.LargeText
+import com.sonarous.player.Text
+import com.sonarous.player.PlayerLargeText
+import com.sonarous.player.PlayerText
 import com.sonarous.player.components.PlayerService
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
@@ -206,7 +206,7 @@ fun AlbumArtHorizontalOrientation(viewModel: PlayerViewModel) {
 @Composable
 fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
     // Song name
-    PlayerLargeLcdText(
+    PlayerLargeText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].name
@@ -221,7 +221,7 @@ fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
             .height(5.dp)
     )
     // Artist name
-    PlayerLcdText(
+    PlayerText(
         try {
             viewModel.queuedSongs[viewModel.songIndex].artist
         } catch (_: IndexOutOfBoundsException) {
@@ -230,7 +230,7 @@ fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
         viewModel = viewModel
     )
     // Album name
-    PlayerLcdText(
+    PlayerText(
         try {
             viewModel.queuedSongs[viewModel.songIndex].album
         } catch (_: IndexOutOfBoundsException) {
@@ -260,7 +260,7 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
         modifier = Modifier.height(10.dp)
     )
     // Song name
-    PlayerLargeLcdText(
+    PlayerLargeText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].name
@@ -275,7 +275,7 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
             .height(5.dp)
     )
     // Artist name
-    PlayerLcdText(
+    PlayerText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].artist
@@ -286,7 +286,7 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
         viewModel = viewModel
     )
     // Album name
-    PlayerLcdText(
+    PlayerText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].album
@@ -575,7 +575,7 @@ fun SeekBar(
     ) {
         var currentSongPosition by remember { mutableFloatStateOf(viewModel.currentSongPosition) }
         var isSeeking by remember { mutableStateOf(false) }
-        LcdText(
+        Text(
             getSongPositionString(viewModel, isSeeking, currentSongPosition),
             viewModel = viewModel
         )
@@ -600,7 +600,7 @@ fun SeekBar(
                 SliderTrack(viewModel)
             },
         )
-        LcdText(
+        Text(
             getSongDurationString(viewModel),
             viewModel = viewModel
         )
@@ -828,7 +828,7 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LcdText(
+        Text(
             "$type:",
             viewModel = viewModel
         )
@@ -877,7 +877,7 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
                 SettingsSliderTrack(viewModel)
             },
         )
-        LargeLcdText(
+        LargeText(
             "%.2f".format(
                 if (type == "Speed") {
                     viewModel.audioEffectSpeed
