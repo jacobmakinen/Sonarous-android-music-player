@@ -1,21 +1,26 @@
 package com.sonarous.player.screens
 
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.IntentSenderRequest
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,15 +38,19 @@ import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
 import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.audio.asf.data.ContentDescription
 import org.jaudiotagger.tag.Tag
 import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
 
 @Composable
-fun MoreSongOptions(viewModel: PlayerViewModel, mediaController: MediaController?, context: Context) {
+fun MoreSongOptions(
+    viewModel: PlayerViewModel,
+    mediaController: MediaController?,
+    context: Context,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,6 +83,7 @@ fun MoreSongOptions(viewModel: PlayerViewModel, mediaController: MediaController
                 AddSongToQueue(viewModel, mediaController)
                 ReplicateAlbumArt(viewModel)
                 ReplaceAlbumArt(viewModel, context)
+                DeleteSong(viewModel, context.contentResolver)
             }
         }
     }
@@ -81,51 +91,81 @@ fun MoreSongOptions(viewModel: PlayerViewModel, mediaController: MediaController
 
 @Composable
 fun ReplicateAlbumArt(viewModel: PlayerViewModel) {
+    MoreOptionRow(
+        viewModel,
+        true,
+        "Copy album art",
+        R.drawable.copy_album_art,
+        "Copy album art",
+    ) {
+        viewModel.replicatedAlbumArt = viewModel.moreOptionsSelectedSong.albumArt.asAndroidBitmap()
+        viewModel.showMoreSongOptions = false
+    }
+}
+
+@Composable
+fun DeleteSong(viewModel: PlayerViewModel, contentResolver: ContentResolver) {
+    val songUri = viewModel.moreOptionsSelectedSong.songUri
+    MoreOptionRow(
+        viewModel,
+        true,
+        "Delete song",
+        R.drawable.delete,
+        "Delete song",
+    ) {
+        val request = MediaStore.createDeleteRequest(contentResolver, listOf(songUri))
+        viewModel.editSongLauncher?.launch(IntentSenderRequest.Builder(request).build())
+        viewModel.showMoreSongOptions = false
+    }
+}
+
+@Composable
+fun MoreOptionRow(
+    viewModel: PlayerViewModel,
+    enabled: Boolean = true,
+    contentDescription: String,
+    @DrawableRes iconId: Int,
+    text: String,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(30.dp)
+            .height(40.dp)
             .clickable(
-                onClick = {
-                    viewModel.replicatedAlbumArt = viewModel.moreOptionsSelectedSong.albumArt.asAndroidBitmap()
-                }
-            ),
+                onClick = onClick,
+                enabled = enabled
+            )
+            .padding(start = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
         Icon(
-            painter = painterResource(R.drawable.copy_album_art),
-            contentDescription = "Copy album art",
+            painter = painterResource(iconId),
+            contentDescription = contentDescription,
             tint = viewModel.iconColor,
+            modifier = Modifier.size(24.dp)
         )
-        Text("Copy album art", viewModel = viewModel)
+        Spacer(Modifier.width(5.dp))
+        Text(text, viewModel = viewModel)
     }
 }
 
 @Composable
 fun ReplaceAlbumArt(viewModel: PlayerViewModel, context: Context) {
     val songUri = viewModel.moreOptionsSelectedSong.songUri
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(30.dp)
-            .clickable(
-                onClick = {
-                    val writeRequest = MediaStore.createWriteRequest(context.contentResolver, listOf(songUri))
-
-                    viewModel.editSongLauncher?.launch(IntentSenderRequest.Builder(writeRequest.intentSender).build())
-                },
-                enabled = viewModel.replicatedAlbumArt != null
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+    MoreOptionRow(
+        viewModel,
+        viewModel.replicatedAlbumArt != null,
+        "Replace album art",
+        R.drawable.replace_image,
+        "Replace album art"
     ) {
-        Icon(
-            painter = painterResource(R.drawable.copy_album_art),
-            contentDescription = "Copy album art",
-            tint = viewModel.iconColor,
+        val writeRequest = MediaStore.createWriteRequest(context.contentResolver, listOf(songUri))
+        viewModel.editSongLauncher?.launch(
+            IntentSenderRequest.Builder(writeRequest.intentSender).build()
         )
-        Text("Replace album art", viewModel = viewModel)
+        viewModel.showMoreSongOptions = false
     }
 }
 
@@ -170,47 +210,25 @@ fun editSongAlbumArt(context: Context, songUri: Uri, bitmap: Bitmap, viewModel: 
     }
 }
 
-fun setAlbumArtFromBitmap(tag: Tag, bitmap: Bitmap) {
-    // Convert Bitmap to ByteArray
-    val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 95, stream)
-    val imageData = stream.toByteArray()
-
-    // Build Artwork manually
-    val artwork = ArtworkFactory.getNew().apply {
-        binaryData = imageData
-        mimeType = "image/jpeg"
-        pictureType = 3  // 3 = Front Cover (standard ID3 picture type)
-    }
-
-    // Apply to tag
-    tag.deleteArtworkField()
-    tag.setField(artwork)
-}
-
 @Composable
 fun AddSongToQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
     val song = viewModel.moreOptionsSelectedSong
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(30.dp)
-            .clickable(
-                onClick = { addSongToQueueLogic(mediaController, song, viewModel) }
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+    MoreOptionRow(
+        viewModel,
+        true,
+        "Add song to queue",
+        R.drawable.queue_music,
+        "Add song to queue"
     ) {
-        Icon(
-            painter = painterResource(R.drawable.queue_music),
-            contentDescription = "Add song to queue",
-            tint = viewModel.iconColor,
-        )
-        Text("Add song to queue", viewModel = viewModel)
+        addSongToQueueLogic(mediaController, song, viewModel)
     }
 }
 
-fun addSongToQueueLogic(mediaController: MediaController?, song: SongInfo, viewModel: PlayerViewModel) {
+fun addSongToQueueLogic(
+    mediaController: MediaController?,
+    song: SongInfo,
+    viewModel: PlayerViewModel,
+) {
     if (viewModel.queueingSongs) {
         mediaController?.addMediaItem(MediaItem.fromUri(song.songUri))
         viewModel.queuedSongs.add(song)
