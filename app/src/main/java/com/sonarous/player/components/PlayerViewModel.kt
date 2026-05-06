@@ -12,7 +12,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -22,6 +21,7 @@ import com.sonarous.player.SettingsManager
 import com.sonarous.player.SongInfo
 import com.sonarous.player.ui.theme.LcdBlueWhite
 import com.sonarous.player.ui.theme.LcdGrey
+import org.jaudiotagger.tag.FieldKey
 
 class PlayerViewModel : ViewModel() {
     //========================= Media info =========================
@@ -87,7 +87,9 @@ class PlayerViewModel : ViewModel() {
     var showMoreSongOptions by mutableStateOf(false)
     var replicatedAlbumArt: Bitmap? = null
     lateinit var moreOptionsSelectedSong: SongInfo
-    var editSongLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
+    var editAlbumArtLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
+    var editSongTagLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
+    var editSongTags: Array<Pair<FieldKey, String>>? = null
     //========================= Init from Json =========================//
     fun initViewModel(context: Context) {
         val settingsManager = SettingsManager(context)

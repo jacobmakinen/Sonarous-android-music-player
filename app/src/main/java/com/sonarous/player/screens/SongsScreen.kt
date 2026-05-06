@@ -1,6 +1,7 @@
 package com.sonarous.player.screens
 
 import android.content.Context
+import android.os.FileObserver
 import androidx.annotation.OptIn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -191,13 +192,13 @@ fun SongTextColumn(songInfo: SongInfo, viewModel: PlayerViewModel) {
         )
         Spacer(
             modifier = Modifier
-                .height(5.dp)
+                .height(3.dp)
         )
         Text( // Artist name
             text = songInfo.artist,
             viewModel = viewModel
         )
-        Spacer(Modifier.height(2.5.dp))
+        Spacer(Modifier.height(1.5.dp))
         Text( // Album name
             text = songInfo.album,
             viewModel = viewModel

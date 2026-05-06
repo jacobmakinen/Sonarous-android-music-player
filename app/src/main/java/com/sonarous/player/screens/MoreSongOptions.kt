@@ -21,8 +21,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,8 +44,7 @@ import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
 import org.jaudiotagger.audio.AudioFileIO
-import org.jaudiotagger.audio.asf.data.ContentDescription
-import org.jaudiotagger.tag.Tag
+import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -51,6 +56,7 @@ fun MoreSongOptions(
     mediaController: MediaController?,
     context: Context,
 ) {
+    val showEditSong = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,16 +82,131 @@ fun MoreSongOptions(
                     .padding(horizontal = 5.dp)
                     .background(viewModel.backgroundColor)
                     .border(0.dp, viewModel.iconColor)
-                    .padding(5.dp),
+                    .padding(10.dp),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
             ) {
-                AddSongToQueue(viewModel, mediaController)
-                ReplicateAlbumArt(viewModel)
-                ReplaceAlbumArt(viewModel, context)
-                DeleteSong(viewModel, context.contentResolver)
+                if (!showEditSong.value) {
+                    AddSongToQueue(viewModel, mediaController)
+                    ReplicateAlbumArt(viewModel)
+                    ReplaceAlbumArt(viewModel, context)
+                    EditSongTags(viewModel, showEditSong)
+                    DeleteSong(viewModel, context.contentResolver)
+                } else {
+                    EditSongTagScreen(viewModel, context)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun EditSongTagScreen(viewModel: PlayerViewModel, context: Context) {
+    val songUri = viewModel.moreOptionsSelectedSong.songUri
+    val songTitle = remember { mutableStateOf(viewModel.moreOptionsSelectedSong.name) }
+    val albumName = remember { mutableStateOf(viewModel.moreOptionsSelectedSong.album) }
+    val artistName = remember { mutableStateOf(viewModel.moreOptionsSelectedSong.artist) }
+    SongTagTextRow(songTitle, viewModel, "Title: ")
+    SongTagTextRow(albumName, viewModel, "Album: ")
+    SongTagTextRow(artistName, viewModel, "Artist: ")
+    Spacer(Modifier.height(15.dp))
+    TextButton(
+        onClick = {
+            viewModel.editSongTags = arrayOf(
+                Pair(FieldKey.TITLE, songTitle.value),
+                Pair(FieldKey.ALBUM, albumName.value),
+                Pair(FieldKey.ARTIST, artistName.value)
+            )
+
+            val writeRequest = MediaStore.createWriteRequest(context.contentResolver, listOf(songUri))
+            viewModel.editSongTagLauncher?.launch(
+                IntentSenderRequest.Builder(writeRequest.intentSender).build()
+            )
+
+            viewModel.showMoreSongOptions = false
+        },
+        modifier = Modifier.border(0.dp, viewModel.iconColor)
+    ) {
+        Text("Apply", viewModel = viewModel)
+    }
+}
+
+@Composable
+fun SongTagTextRow(value: MutableState<String>, viewModel: PlayerViewModel, text: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+            .height(80.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(text, viewModel = viewModel)
+            TextField(
+                value = value.value,
+                onValueChange = {
+                    value.value = it
+                },
+            )
+        }
+    }
+}
+
+fun editSongTag(
+    context: Context,
+    songUri: Uri,
+    fields: Array<Pair<FieldKey, String>>,
+    viewModel: PlayerViewModel,
+) {
+    val tempFile = File(context.cacheDir, "temp_${viewModel.moreOptionsSelectedSong.fileName}")
+
+    try {
+        // Copy original to temp file
+        context.contentResolver.openInputStream(songUri)?.use { input ->
+            tempFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        } ?: throw IOException("Failed to open input stream for $songUri")
+
+        // Edit metadata on temp file
+        val audioFile = AudioFileIO.read(tempFile)
+        val tag = audioFile.tagOrCreateAndSetDefault
+
+        fields.forEach { field ->
+            // field ::= <FieldKey> <FieldValue>
+            tag.setField(field.first, field.second)
+        }
+        audioFile.commit()
+
+        // "rwt" mode: opens for read/write and truncates only after opening,
+        // preventing corruption if the stream fails to open
+        context.contentResolver.openOutputStream(songUri, "rwt")?.use { output ->
+            tempFile.inputStream().use { input ->
+                input.copyTo(output)
+            }
+        } ?: throw IOException("Failed to open output stream for $songUri")
+
+    } finally {
+        tempFile.delete()
+    }
+}
+
+@Composable
+fun EditSongTags(viewModel: PlayerViewModel, showEditSong: MutableState<Boolean>) {
+    MoreOptionRow(
+        viewModel,
+        true,
+        "Edit song tags",
+        R.drawable.edit,
+        "Edit song tags"
+    ) {
+        showEditSong.value = true
     }
 }
 
@@ -114,7 +235,7 @@ fun DeleteSong(viewModel: PlayerViewModel, contentResolver: ContentResolver) {
         "Delete song",
     ) {
         val request = MediaStore.createDeleteRequest(contentResolver, listOf(songUri))
-        viewModel.editSongLauncher?.launch(IntentSenderRequest.Builder(request).build())
+        viewModel.editAlbumArtLauncher?.launch(IntentSenderRequest.Builder(request).build())
         viewModel.showMoreSongOptions = false
     }
 }
@@ -126,7 +247,7 @@ fun MoreOptionRow(
     contentDescription: String,
     @DrawableRes iconId: Int,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -162,7 +283,7 @@ fun ReplaceAlbumArt(viewModel: PlayerViewModel, context: Context) {
         "Replace album art"
     ) {
         val writeRequest = MediaStore.createWriteRequest(context.contentResolver, listOf(songUri))
-        viewModel.editSongLauncher?.launch(
+        viewModel.editAlbumArtLauncher?.launch(
             IntentSenderRequest.Builder(writeRequest.intentSender).build()
         )
         viewModel.showMoreSongOptions = false
