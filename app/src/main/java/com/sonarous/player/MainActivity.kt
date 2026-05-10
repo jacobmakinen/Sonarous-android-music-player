@@ -80,10 +80,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        var songInfo: List<SongInfo>?
-//        var albumInfo: List<AlbumInfo>?
-        var songInfo = mutableStateListOf<SongInfo>()
-        var albumInfo = mutableStateListOf<AlbumInfo>()
+        val songInfo = mutableStateListOf<SongInfo>()
+        val albumInfo = mutableStateListOf<AlbumInfo>()
 
         //==================== Assign permission launchers ====================//
         val requestPermissionLauncher = registerForActivityResult(

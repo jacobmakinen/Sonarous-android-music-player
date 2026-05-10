@@ -2,12 +2,14 @@ package com.sonarous.player.components
 
 import android.content.Context
 import android.os.Handler
+import android.os.SystemClock
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.SonicAudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
@@ -16,9 +18,15 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.sonarous.player.VisualiserData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.jtransforms.fft.DoubleFFT_1D
 import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
@@ -55,6 +63,8 @@ class PlayerService : MediaSessionService() {
         var eqList = DoubleArray(7)
         var volume = 0.0
         var usingSonicProcessor = false
+        private val emissionScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+//        private var actualAudioLatencyMs = 0L
 
         override fun configure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
             if (usingSonicProcessor) {
@@ -133,14 +143,16 @@ class PlayerService : MediaSessionService() {
                 eqList = frequencyCalculator(absValueList)
                 volume = bufferVolume
 
-                val audioLatency = 1000L
-                _eqStateFlow.tryEmit(
-                    VisualiserData(
-                        eqList,
-                        volume,
-                        audioLatency
+                val capturedEqList = eqList.copyOf()
+                val capturedVolume = volume
+//                val delayMs = actualAudioLatencyMs.coerceAtLeast(0L)
+
+                emissionScope.launch {
+                    delay(500)
+                    _eqStateFlow.emit(
+                        VisualiserData(capturedEqList, capturedVolume, 500)
                     )
-                )
+                }
             }
             //================================= End of equaliser processing =================================//
             outputBuffer = AudioProcessor.EMPTY_BUFFER
@@ -150,11 +162,16 @@ class PlayerService : MediaSessionService() {
             return result
         }
 
+//        fun updateAudioLatency(latencyMs: Long) {
+//            actualAudioLatencyMs = latencyMs
+//        }
+
         override fun isEnded(): Boolean {
             return isEnded
         }
 
         override fun flush() {
+            emissionScope.coroutineContext.cancelChildren()
             if (usingSonicProcessor) {
                 sonicAudioProcessor.flush()
             }
@@ -164,6 +181,8 @@ class PlayerService : MediaSessionService() {
         }
 
         override fun reset() {
+            emissionScope.coroutineContext.cancelChildren() // Cancel pending delayed emissions
+
             if (usingSonicProcessor) {
                 sonicAudioProcessor.reset()
             }
@@ -186,6 +205,8 @@ class PlayerService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // --------------------- Player dependency & player init --------------------- //
         val myAudioSink = DefaultAudioSink.Builder(this)
             .setAudioProcessors(arrayOf(SpectrumAnalyzer))
             .build()
@@ -227,6 +248,17 @@ class PlayerService : MediaSessionService() {
             .build()
         mediaSession = MediaSession.Builder(this, player)
             .build()
+
+        // Retrieved delay does not seem to be accurate -> hardcoded at 500ms
+//        player.addAnalyticsListener(object : AnalyticsListener {
+//            override fun onAudioPositionAdvancing(
+//                eventTime: AnalyticsListener.EventTime,
+//                playoutStartSystemTimeMs: Long
+//            ) {
+//                val latency = SystemClock.elapsedRealtime() - playoutStartSystemTimeMs
+//                SpectrumAnalyzer.updateAudioLatency(latency) //.coerceIn(50L, 500L)
+//            }
+//        })
     }
 
     override fun onDestroy() {

@@ -71,7 +71,7 @@ import com.sonarous.player.components.PlayerService
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
-import com.sonarous.player.SpectrumAnalyzer
+import com.sonarous.player.Visualizer
 import java.lang.Thread.sleep
 
 @ExperimentalMaterial3Api
@@ -112,7 +112,7 @@ fun PortraitOrientation(
         PlayingMediaInfo(viewModel)
         PlaybackControls(mediaController, viewModel)
         if (viewModel.showEqualiser) {
-            SpectrumAnalyzer(audioProcessor, viewModel)
+            Visualizer(audioProcessor, viewModel)
         }
         OtherMediaControls(
             viewModel,
@@ -154,7 +154,7 @@ fun HorizontalOrientation(
             PlaybackControls(mediaController, viewModel, 46.dp)
             SeekBarAndOtherControls(viewModel, mediaController, songInfo, audioProcessor)
             if (viewModel.showEqualiser) {
-                SpectrumAnalyzer(audioProcessor, viewModel)
+                Visualizer(audioProcessor, viewModel)
             }
         }
     }
