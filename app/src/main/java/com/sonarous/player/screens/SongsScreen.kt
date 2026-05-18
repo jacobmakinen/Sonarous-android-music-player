@@ -74,10 +74,6 @@ fun SongsScreen(
     pagerState: PagerState,
     context: Context
 ) {
-    val lazyColumnState = rememberLazyListState(
-        initialFirstVisibleItemIndex = 0,
-        initialFirstVisibleItemScrollOffset = 0,
-    )
     val mediaItemList by remember {
         derivedStateOf {
             val tmpList = mutableListOf<MediaItem>()
@@ -122,13 +118,13 @@ fun SongsScreen(
                     .fillMaxWidth(0.955f),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
-                state = lazyColumnState,
+                state = viewModel.songsScreenLazyColumnState,
             ) {
                 items(lazyColumnSize) { i ->
                     SongRow(songInfo[i], viewModel, i, playSongCallback)
                 }
             }
-            ScrollBar(lazyColumnState, viewModel, lazyColumnSize.toFloat())
+            ScrollBar(viewModel.songsScreenLazyColumnState, viewModel, lazyColumnSize.toFloat())
         }
         if (viewModel.showMoreSongOptions) {
             MoreSongOptions(viewModel, mediaController, context)

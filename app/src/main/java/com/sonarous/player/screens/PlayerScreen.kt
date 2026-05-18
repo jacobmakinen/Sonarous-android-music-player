@@ -764,9 +764,35 @@ fun AudioEffectMenu(
                     JointSpeedPitchSlider(viewModel)
                     SpeedPitchSlider(viewModel, sliderColumnWidth, sliderHeight, "Pitch")
                 }
-                ApplyChangesButton(mediaController, audioProcessor, viewModel)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    ApplyChangesButton(mediaController, audioProcessor, viewModel)
+                    ResetEffectsButton(viewModel)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun ResetEffectsButton(viewModel: PlayerViewModel) {
+    IconButton(
+        onClick = {
+            viewModel.audioEffectSpeed = 1f
+            viewModel.audioEffectPitch = 1f
+        },
+        modifier = Modifier.size(40.dp),
+        colors = IconButtonDefaults.iconButtonColors(contentColor = viewModel.iconColor)
+    ) {
+        Icon(
+            painterResource(R.drawable.refresh),
+            contentDescription = "Reset effects"
+        )
     }
 }
 
@@ -775,45 +801,42 @@ fun AudioEffectMenu(
 fun ApplyChangesButton(
     mediaController: MediaController?,
     audioProcessor: PlayerService.SpectrumAnalyzer,
-    viewModel: PlayerViewModel
+    viewModel: PlayerViewModel,
 ) {
-    Row(
+    IconButton(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        IconButton(
-            modifier = Modifier
-                .size(50.dp),
-            onClick = {
-                val tmpIsPlaying = viewModel.isPlaying
-                if (tmpIsPlaying) { mediaController?.pause() }
-                audioProcessor.speed = viewModel.audioEffectSpeed
-                audioProcessor.pitch = viewModel.audioEffectPitch
-                audioProcessor.usingSonicProcessor = audioProcessor.pitch != 1f || audioProcessor.speed != 1f
-                audioProcessor.configure(
-                    AudioProcessor.AudioFormat(
-                        44100,
-                        2,
-                        C.ENCODING_PCM_16BIT
-                    )
+            .size(40.dp),
+        onClick = {
+            val tmpIsPlaying = viewModel.isPlaying
+            if (tmpIsPlaying) {
+                mediaController?.pause()
+            }
+            audioProcessor.speed = viewModel.audioEffectSpeed
+            audioProcessor.pitch = viewModel.audioEffectPitch
+            audioProcessor.usingSonicProcessor =
+                audioProcessor.pitch != 1f || audioProcessor.speed != 1f
+            audioProcessor.configure(
+                AudioProcessor.AudioFormat(
+                    44100,
+                    2,
+                    C.ENCODING_PCM_16BIT
                 )
-                audioProcessor.flush()
-                if (tmpIsPlaying) { mediaController?.play() }
-                viewModel.updateSongDuration(
-                    audioProcessor.getDurationAfterProcessorApplied(viewModel.duration.toLong())
-                )
-                viewModel.audioEffectMenuExpanded = false
-            },
-            colors = IconButtonDefaults.iconButtonColors(contentColor = viewModel.iconColor)
-        ) {
-            Icon(
-                painterResource(R.drawable.done_tick),
-                contentDescription = "Apply changes"
             )
-        }
+            audioProcessor.flush()
+            if (tmpIsPlaying) {
+                mediaController?.play()
+            }
+            viewModel.updateSongDuration(
+                audioProcessor.getDurationAfterProcessorApplied(viewModel.duration.toLong())
+            )
+            viewModel.audioEffectMenuExpanded = false
+        },
+        colors = IconButtonDefaults.iconButtonColors(contentColor = viewModel.iconColor)
+    ) {
+        Icon(
+            painterResource(R.drawable.done_tick),
+            contentDescription = "Apply changes"
+        )
     }
 }
 
@@ -823,7 +846,6 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .animateContentSize()
             .width(sliderColumnWidth.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally

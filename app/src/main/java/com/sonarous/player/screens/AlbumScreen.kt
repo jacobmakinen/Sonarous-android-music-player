@@ -40,10 +40,6 @@ fun AlbumScreen(
     navController: NavController,
     elementsPerRow: Int = 3,
 ) {
-    val lazyColumnState = rememberLazyListState(
-        initialFirstVisibleItemIndex = 0,
-        initialFirstVisibleItemScrollOffset = 0,
-    )
     val rowNumbers = (
             if (albumInfo.count() % elementsPerRow != 0) {
                 albumInfo.count() / elementsPerRow + 1
@@ -65,7 +61,7 @@ fun AlbumScreen(
                 .fillMaxWidth(0.955f),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
-            state = lazyColumnState
+            state = viewModel.albumScreenLazyColumnState
         ) {
             items(rowNumbers) { rowIndex ->
                 Row(
@@ -172,6 +168,6 @@ fun AlbumScreen(
                 }
             }
         }
-        ScrollBar(lazyColumnState, viewModel, rowNumbers.toFloat(), 4.toFloat())
+        ScrollBar(viewModel.albumScreenLazyColumnState, viewModel, rowNumbers.toFloat(), 4.toFloat())
     }
 }

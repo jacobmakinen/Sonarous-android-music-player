@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -82,7 +83,10 @@ class PlayerViewModel : ViewModel() {
     var audioEffectMenuExpanded by mutableStateOf(false)
     var audioEffectSpeed by mutableFloatStateOf(1f)
     var audioEffectPitch by mutableFloatStateOf(1f)
-    val menuWidth by mutableStateOf(120.dp)
+    val menuWidth by mutableStateOf(140.dp)
+    lateinit var songsScreenLazyColumnState: LazyListState
+    lateinit var queuedSongsLazyColumnState: LazyListState
+    lateinit var albumScreenLazyColumnState: LazyListState
     //========================= More options screen =========================//
     var showMoreSongOptions by mutableStateOf(false)
     var replicatedAlbumArt: Bitmap? = null

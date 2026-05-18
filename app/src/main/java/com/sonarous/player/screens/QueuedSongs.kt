@@ -39,12 +39,6 @@ import com.sonarous.player.R
 @ExperimentalFoundationApi
 @Composable
 fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
-    val fetchStrategy = LazyListPrefetchStrategy(50)
-    val lazyColumnState = rememberLazyListState(
-        initialFirstVisibleItemIndex = 0,
-        initialFirstVisibleItemScrollOffset = 0,
-        prefetchStrategy = fetchStrategy
-    )
     val lazyListSize = viewModel.queuedSongs.count()
     Row(
         modifier = Modifier
@@ -61,7 +55,7 @@ fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
                 .fillMaxWidth(0.955f),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
-            state = lazyColumnState,
+            state = viewModel.queuedSongsLazyColumnState,
         ) {
             items(lazyListSize) { i ->
                 Row(
@@ -107,7 +101,7 @@ fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
                 }
             }
         }
-        ScrollBar(lazyColumnState, viewModel, lazyListSize.toFloat(), 10.toFloat())
+        ScrollBar(viewModel.queuedSongsLazyColumnState, viewModel, lazyListSize.toFloat(), 10.toFloat())
     }
 }
 
