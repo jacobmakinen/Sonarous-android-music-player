@@ -32,13 +32,9 @@ class PlayerService : MediaSessionService() {
         return mediaSession
     }
 
-    object SpectrumAnalyzer : AudioProcessor {
+    object AudioVisualizerProcessor : AudioProcessor {
         private val _eqStateFlow = MutableStateFlow(
-            VisualiserData(
-                doubleArrayOf(),
-                0.0,
-                1000L
-            )
+            VisualiserData(doubleArrayOf(), 0.0, 1000L)
         )
         val eqStateFlow: StateFlow<VisualiserData> = _eqStateFlow.asStateFlow()
         var speed = 1f
@@ -47,7 +43,7 @@ class PlayerService : MediaSessionService() {
         private val sonicAudioProcessor = SonicAudioProcessor()
         private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
         private const val ARRAY_SIZE = 512
-        private var fft = DoubleFFT_1D(ARRAY_SIZE.toLong()) // Creates FFT instance
+        private var fft = DoubleFFT_1D(ARRAY_SIZE.toLong())
         private var endOfStreamQueued = false
         private var isEnded = false
         var eqList = DoubleArray(7)
@@ -68,9 +64,7 @@ class PlayerService : MediaSessionService() {
             return inputAudioFormat
         }
 
-        override fun isActive(): Boolean {
-            return true
-        }
+        override fun isActive(): Boolean = true
 
         override fun queueInput(inputBuffer: ByteBuffer) {
             if (!inputBuffer.hasRemaining()) {
@@ -116,7 +110,7 @@ class PlayerService : MediaSessionService() {
                     val window = 0.5 * (1 - kotlin.math.cos(2.0 * Math.PI * i / (ARRAY_SIZE - 1))) // Hann window to reduce sound leakage
                     fftArray[i] = fftArray[i] * window
                 }
-                //================================= Graphical equaliser data =================================//
+                //================================= Visualizer data =================================//
                 fft.realForward(fftArray)
 
                 val absValueList = DoubleArray(fftArray.count() / 2)
@@ -148,9 +142,7 @@ class PlayerService : MediaSessionService() {
             return result
         }
 
-        override fun isEnded(): Boolean {
-            return isEnded
-        }
+        override fun isEnded(): Boolean = isEnded
 
         override fun flush() {
             if (usingSonicProcessor) {
@@ -185,7 +177,7 @@ class PlayerService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         val myAudioSink = DefaultAudioSink.Builder(this)
-            .setAudioProcessors(arrayOf(SpectrumAnalyzer))
+            .setAudioProcessors(arrayOf(AudioVisualizerProcessor))
             .build()
         val renderersFactory = object : DefaultRenderersFactory(this) {
             override fun buildAudioRenderers(

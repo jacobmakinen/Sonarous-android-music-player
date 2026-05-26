@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
             MoreExecutors.directExecutor()
         )
         lifecycleScope.launch {
-            val audioProcessor = PlayerService.SpectrumAnalyzer
+            val audioProcessor = PlayerService.AudioVisualizerProcessor
             audioProcessor.visualiserIsOn = true
             viewModel.mediaInfoPair = requestInitPermissions(applicationContext, requestPermissionLauncher)
 
@@ -190,12 +190,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        PlayerService.SpectrumAnalyzer.visualiserIsOn = true
+        PlayerService.AudioVisualizerProcessor.visualiserIsOn = true
     }
 
     override fun onStop() {
         super.onStop()
-        PlayerService.SpectrumAnalyzer.visualiserIsOn = false
+        PlayerService.AudioVisualizerProcessor.visualiserIsOn = false
     }
 
     override fun onDestroy() {

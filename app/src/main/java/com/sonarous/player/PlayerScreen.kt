@@ -70,7 +70,7 @@ import java.lang.Thread.sleep
 @Composable
 fun PlayerScreen(
     mediaController: MediaController?,
-    audioProcessor: PlayerService.SpectrumAnalyzer,
+    audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>
 ) {
@@ -86,7 +86,7 @@ fun PlayerScreen(
 @Composable
 fun PortraitOrientation(
     mediaController: MediaController?,
-    audioProcessor: PlayerService.SpectrumAnalyzer,
+    audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>
 ) {
@@ -120,7 +120,7 @@ fun PortraitOrientation(
 @Composable
 fun HorizontalOrientation(
     mediaController: MediaController?,
-    audioProcessor: PlayerService.SpectrumAnalyzer,
+    audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>
 ) {
@@ -158,7 +158,7 @@ fun SeekBarAndOtherControls(
     viewModel: PlayerViewModel,
     mediaController: MediaController?,
     songInfo: List<SongInfo>,
-    audioProcessor: PlayerService.SpectrumAnalyzer
+    audioProcessor: PlayerService.AudioVisualizerProcessor
 ) {
     Row(
         modifier = Modifier
@@ -411,7 +411,7 @@ fun OtherMediaControls(
     viewModel: PlayerViewModel,
     mediaController: MediaController?,
     songInfo: List<SongInfo>,
-    audioProcessor: PlayerService.SpectrumAnalyzer
+    audioProcessor: PlayerService.AudioVisualizerProcessor
 ) {
     Row(
         modifier = Modifier
@@ -683,7 +683,7 @@ fun SliderTrack(viewModel: PlayerViewModel) {
 @Composable
 fun AudioEffectMenu(
     viewModel: PlayerViewModel,
-    audioProcessor: PlayerService.SpectrumAnalyzer,
+    audioProcessor: PlayerService.AudioVisualizerProcessor,
     mediaController: MediaController?,
 ) {
     val popupOffset =
@@ -765,7 +765,7 @@ fun AudioEffectMenu(
 @Composable
 fun ApplyChangesButton(
     mediaController: MediaController?,
-    audioProcessor: PlayerService.SpectrumAnalyzer,
+    audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel
 ) {
     Row(

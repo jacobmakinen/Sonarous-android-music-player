@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 @OptIn(UnstableApi::class)
 @Composable
 fun SpectrumAnalyzer(
-    spectrumAnalyzer: PlayerService.SpectrumAnalyzer,
+    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel
 ) {
     val scope = rememberCoroutineScope()

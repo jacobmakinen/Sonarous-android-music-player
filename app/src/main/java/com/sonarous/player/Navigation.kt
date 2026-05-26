@@ -63,7 +63,7 @@ import kotlinx.coroutines.launch
 fun NavHost(
     mediaController: MediaController?,
     songInfo: List<SongInfo>,
-    audioProcessor: PlayerService.SpectrumAnalyzer,
+    audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     albumInfo: List<AlbumInfo>,
     context: Context
@@ -117,7 +117,7 @@ fun NavHost(
 @Composable
 fun Pager(
     mediaController: MediaController?,
-    spectrumAnalyzer: PlayerService.SpectrumAnalyzer,
+    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
@@ -158,7 +158,7 @@ fun Pager(
 @Composable
 fun HorizontalTabRow(
     mediaController: MediaController?,
-    spectrumAnalyzer: PlayerService.SpectrumAnalyzer,
+    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
@@ -314,7 +314,7 @@ fun HorizontalTabRow(
 @Composable
 fun PortraitTabRow(
     mediaController: MediaController?,
-    spectrumAnalyzer: PlayerService.SpectrumAnalyzer,
+    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
