@@ -3,6 +3,7 @@ package com.sonarous.player
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.sonarous.player.screens.changeBrightness
 import com.sonarous.player.ui.theme.LcdBlueWhite
 import com.sonarous.player.ui.theme.LcdGrey
 import kotlinx.serialization.Serializable

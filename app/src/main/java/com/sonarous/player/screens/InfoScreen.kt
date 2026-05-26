@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +30,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.sonarous.player.ui.theme.lcdFont
+import com.sonarous.player.BackButtonRow
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.ui.theme.shareTechFont
 
 @Composable
 fun InfoScreen(viewModel: PlayerViewModel, navController: NavController) {
@@ -44,12 +47,12 @@ fun InfoScreen(viewModel: PlayerViewModel, navController: NavController) {
     ) {
         BackButtonRow(viewModel, navController, "Info")
         OpenSourceInfo(viewModel)
-        InfoLcdText(
+        InfoText(
             text = "Help:",
             viewModel = viewModel,
             fontSize = 19.sp
         )
-        InfoLcdText(
+        InfoText(
             text = "Can't see your music?\nMake sure it's in your phone's \"Music\" folder",
             viewModel = viewModel
         )
@@ -68,7 +71,7 @@ fun OpenSourceInfo(viewModel: PlayerViewModel) {
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        InfoLcdText(
+        InfoText(
             "Licences for open source libraries used:\n",
             viewModel = viewModel,
             fontSize = 19.sp
@@ -96,7 +99,7 @@ fun OpenSourceInfo(viewModel: PlayerViewModel) {
         ) {
             if (expandedOpenSourceInfo) {
                 item {
-                    InfoLcdText(
+                    InfoText(
                         text = "AndroidX, kotlinx.serialization, color-picker compose, material-components-android\n\n" +
                                 """
                         Licensed under the Apache License, Version 2.0 (the "License");
@@ -116,7 +119,7 @@ fun OpenSourceInfo(viewModel: PlayerViewModel) {
                     Spacer(Modifier.height(10.dp))
                 }
                 item {
-                    InfoLcdText(
+                    InfoText(
                         """
                         JTransforms
                         Copyright (c) 2007 onward, Piotr Wendykier
@@ -151,7 +154,7 @@ fun OpenSourceInfo(viewModel: PlayerViewModel) {
 }
 
 @Composable
-fun InfoLcdText(
+fun InfoText(
     text: String,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel,
@@ -160,10 +163,10 @@ fun InfoLcdText(
 ) {
     Text(
         modifier = modifier,
-        text = text.uppercase(),
+        text = text,
         color = viewModel.textColor,
         fontSize = fontSize,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         lineHeight = lineHeight
     )

@@ -63,6 +63,15 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
+import com.sonarous.player.LargeText
+import com.sonarous.player.Text
+import com.sonarous.player.PlayerLargeText
+import com.sonarous.player.PlayerText
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.R
+import com.sonarous.player.SongInfo
+import com.sonarous.player.Visualizer
 import java.lang.Thread.sleep
 
 @ExperimentalMaterial3Api
@@ -103,7 +112,7 @@ fun PortraitOrientation(
         PlayingMediaInfo(viewModel)
         PlaybackControls(mediaController, viewModel)
         if (viewModel.showEqualiser) {
-            SpectrumAnalyzer(audioProcessor, viewModel)
+            Visualizer(audioProcessor, viewModel)
         }
         OtherMediaControls(
             viewModel,
@@ -145,7 +154,7 @@ fun HorizontalOrientation(
             PlaybackControls(mediaController, viewModel, 46.dp)
             SeekBarAndOtherControls(viewModel, mediaController, songInfo, audioProcessor)
             if (viewModel.showEqualiser) {
-                SpectrumAnalyzer(audioProcessor, viewModel)
+                Visualizer(audioProcessor, viewModel)
             }
         }
     }
@@ -197,7 +206,7 @@ fun AlbumArtHorizontalOrientation(viewModel: PlayerViewModel) {
 @Composable
 fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
     // Song name
-    PlayerLargeLcdText(
+    PlayerLargeText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].name
@@ -212,7 +221,7 @@ fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
             .height(5.dp)
     )
     // Artist name
-    PlayerLcdText(
+    PlayerText(
         try {
             viewModel.queuedSongs[viewModel.songIndex].artist
         } catch (_: IndexOutOfBoundsException) {
@@ -221,7 +230,7 @@ fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
         viewModel = viewModel
     )
     // Album name
-    PlayerLcdText(
+    PlayerText(
         try {
             viewModel.queuedSongs[viewModel.songIndex].album
         } catch (_: IndexOutOfBoundsException) {
@@ -251,7 +260,7 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
         modifier = Modifier.height(10.dp)
     )
     // Song name
-    PlayerLargeLcdText(
+    PlayerLargeText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].name
@@ -266,7 +275,7 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
             .height(5.dp)
     )
     // Artist name
-    PlayerLcdText(
+    PlayerText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].artist
@@ -277,7 +286,7 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
         viewModel = viewModel
     )
     // Album name
-    PlayerLcdText(
+    PlayerText(
         text = (
                 try {
                     viewModel.queuedSongs[viewModel.songIndex].album
@@ -566,7 +575,7 @@ fun SeekBar(
     ) {
         var currentSongPosition by remember { mutableFloatStateOf(viewModel.currentSongPosition) }
         var isSeeking by remember { mutableStateOf(false) }
-        LcdText(
+        Text(
             getSongPositionString(viewModel, isSeeking, currentSongPosition),
             viewModel = viewModel
         )
@@ -591,7 +600,7 @@ fun SeekBar(
                 SliderTrack(viewModel)
             },
         )
-        LcdText(
+        Text(
             getSongDurationString(viewModel),
             viewModel = viewModel
         )
@@ -755,9 +764,35 @@ fun AudioEffectMenu(
                     JointSpeedPitchSlider(viewModel)
                     SpeedPitchSlider(viewModel, sliderColumnWidth, sliderHeight, "Pitch")
                 }
-                ApplyChangesButton(mediaController, audioProcessor, viewModel)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    ApplyChangesButton(mediaController, audioProcessor, viewModel)
+                    ResetEffectsButton(viewModel)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun ResetEffectsButton(viewModel: PlayerViewModel) {
+    IconButton(
+        onClick = {
+            viewModel.audioEffectSpeed = 1f
+            viewModel.audioEffectPitch = 1f
+        },
+        modifier = Modifier.size(40.dp),
+        colors = IconButtonDefaults.iconButtonColors(contentColor = viewModel.iconColor)
+    ) {
+        Icon(
+            painterResource(R.drawable.refresh),
+            contentDescription = "Reset effects"
+        )
     }
 }
 
@@ -768,43 +803,40 @@ fun ApplyChangesButton(
     audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel
 ) {
-    Row(
+    IconButton(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        IconButton(
-            modifier = Modifier
-                .size(50.dp),
-            onClick = {
-                val tmpIsPlaying = viewModel.isPlaying
-                if (tmpIsPlaying) { mediaController?.pause() }
-                audioProcessor.speed = viewModel.audioEffectSpeed
-                audioProcessor.pitch = viewModel.audioEffectPitch
-                audioProcessor.usingSonicProcessor = audioProcessor.pitch != 1f || audioProcessor.speed != 1f
-                audioProcessor.configure(
-                    AudioProcessor.AudioFormat(
-                        44100,
-                        2,
-                        C.ENCODING_PCM_16BIT
-                    )
+            .size(40.dp),
+        onClick = {
+            val tmpIsPlaying = viewModel.isPlaying
+            if (tmpIsPlaying) {
+                mediaController?.pause()
+            }
+            audioProcessor.speed = viewModel.audioEffectSpeed
+            audioProcessor.pitch = viewModel.audioEffectPitch
+            audioProcessor.usingSonicProcessor =
+                audioProcessor.pitch != 1f || audioProcessor.speed != 1f
+            audioProcessor.configure(
+                AudioProcessor.AudioFormat(
+                    44100,
+                    2,
+                    C.ENCODING_PCM_16BIT
                 )
-                audioProcessor.flush()
-                if (tmpIsPlaying) { mediaController?.play() }
-                viewModel.updateSongDuration(
-                    audioProcessor.getDurationAfterProcessorApplied(viewModel.duration.toLong())
-                )
-                viewModel.audioEffectMenuExpanded = false
-            },
-            colors = IconButtonDefaults.iconButtonColors(contentColor = viewModel.iconColor)
-        ) {
-            Icon(
-                painterResource(R.drawable.done_tick),
-                contentDescription = "Apply changes"
             )
-        }
+            audioProcessor.flush()
+            if (tmpIsPlaying) {
+                mediaController?.play()
+            }
+            viewModel.updateSongDuration(
+                audioProcessor.getDurationAfterProcessorApplied(viewModel.duration.toLong())
+            )
+            viewModel.audioEffectMenuExpanded = false
+        },
+        colors = IconButtonDefaults.iconButtonColors(contentColor = viewModel.iconColor)
+    ) {
+        Icon(
+            painterResource(R.drawable.done_tick),
+            contentDescription = "Apply changes"
+        )
     }
 }
 
@@ -814,12 +846,11 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .animateContentSize()
             .width(sliderColumnWidth.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LcdText(
+        Text(
             "$type:",
             viewModel = viewModel
         )
@@ -868,14 +899,14 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
                 SettingsSliderTrack(viewModel)
             },
         )
-        LargeLcdText(
+        LargeText(
             "%.2f".format(
-                    if (type == "Speed") {
-                        viewModel.audioEffectSpeed
-                    } else {
-                        viewModel.audioEffectPitch
-                    }
-                    ),
+                if (type == "Speed") {
+                    viewModel.audioEffectSpeed
+                } else {
+                    viewModel.audioEffectPitch
+                }
+            ),
             viewModel = viewModel,
             lineHeight = 1.sp
         )

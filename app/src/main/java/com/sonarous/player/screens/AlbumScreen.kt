@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -25,9 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
+import com.sonarous.player.AlbumInfo
+import com.sonarous.player.AlbumScreenText
+import com.sonarous.player.components.PlayerViewModel
 
 @ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
@@ -38,10 +40,6 @@ fun AlbumScreen(
     navController: NavController,
     elementsPerRow: Int = 3,
 ) {
-    val lazyColumnState = rememberLazyListState(
-        initialFirstVisibleItemIndex = 0,
-        initialFirstVisibleItemScrollOffset = 0,
-    )
     val rowNumbers = (
             if (albumInfo.count() % elementsPerRow != 0) {
                 albumInfo.count() / elementsPerRow + 1
@@ -63,7 +61,7 @@ fun AlbumScreen(
                 .fillMaxWidth(0.955f),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
-            state = lazyColumnState
+            state = viewModel.albumScreenLazyColumnState
         ) {
             items(rowNumbers) { rowIndex ->
                 Row(
@@ -98,7 +96,7 @@ fun AlbumScreen(
                                     contentScale = ContentScale.Crop
                                 )
                                 Spacer(Modifier.height(5.dp))
-                                AlbumScreenLcdText(
+                                AlbumScreenText(
                                     albumInfo[rowIndex * elementsPerRow + index].albumName,
                                     viewModel = viewModel,
                                 )
@@ -129,7 +127,7 @@ fun AlbumScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(Modifier.height(5.dp))
-                                    AlbumScreenLcdText(
+                                    AlbumScreenText(
                                         albumInfo[rowIndex * elementsPerRow + index].albumName,
                                         viewModel = viewModel,
                                     )
@@ -159,7 +157,7 @@ fun AlbumScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(Modifier.height(5.dp))
-                                    AlbumScreenLcdText(
+                                    AlbumScreenText(
                                         albumInfo[rowIndex * elementsPerRow + index].albumName,
                                         viewModel = viewModel,
                                     )
@@ -170,6 +168,6 @@ fun AlbumScreen(
                 }
             }
         }
-        ScrollBar(lazyColumnState, viewModel, rowNumbers.toFloat(), 4.toFloat())
+        ScrollBar(viewModel.albumScreenLazyColumnState, viewModel, rowNumbers.toFloat(), 4.toFloat())
     }
 }

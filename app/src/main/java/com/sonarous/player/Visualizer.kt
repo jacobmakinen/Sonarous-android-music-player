@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(UnstableApi::class)
 @Composable
-fun SpectrumAnalyzer(
+fun Visualizer(
     spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel
 ) {
@@ -59,7 +59,6 @@ fun SpectrumAnalyzer(
     val stateFlowData = spectrumAnalyzer.eqStateFlow.collectAsState()
     remember(stateFlowData.value) {
         scope.launch {
-            delay(1850)
             eqList = stateFlowData.value.visualiserList
             volume = stateFlowData.value.volume
         }

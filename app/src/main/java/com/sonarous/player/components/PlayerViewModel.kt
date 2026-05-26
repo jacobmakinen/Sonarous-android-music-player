@@ -1,6 +1,10 @@
-package com.sonarous.player
+package com.sonarous.player.components
 
 import android.content.Context
+import android.graphics.Bitmap
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -13,8 +17,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.media3.session.MediaController
+import com.sonarous.player.AlbumInfo
+import com.sonarous.player.SettingsManager
+import com.sonarous.player.SongInfo
 import com.sonarous.player.ui.theme.LcdBlueWhite
 import com.sonarous.player.ui.theme.LcdGrey
+import org.jaudiotagger.tag.FieldKey
 
 class PlayerViewModel : ViewModel() {
     //========================= Media info =========================
@@ -75,10 +83,17 @@ class PlayerViewModel : ViewModel() {
     var audioEffectMenuExpanded by mutableStateOf(false)
     var audioEffectSpeed by mutableFloatStateOf(1f)
     var audioEffectPitch by mutableFloatStateOf(1f)
-    val menuWidth by mutableStateOf(120.dp)
+    val menuWidth by mutableStateOf(140.dp)
+    lateinit var songsScreenLazyColumnState: LazyListState
+    lateinit var queuedSongsLazyColumnState: LazyListState
+    lateinit var albumScreenLazyColumnState: LazyListState
     //========================= More options screen =========================//
-    var showMoreOptions by mutableStateOf(false)
+    var showMoreSongOptions by mutableStateOf(false)
+    var replicatedAlbumArt: Bitmap? = null
     lateinit var moreOptionsSelectedSong: SongInfo
+    var editAlbumArtLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
+    var editSongTagLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
+    var editSongTags: Array<Pair<FieldKey, String>>? = null
     //========================= Init from Json =========================//
     fun initViewModel(context: Context) {
         val settingsManager = SettingsManager(context)

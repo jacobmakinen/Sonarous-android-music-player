@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.components
 
 import android.content.Context
 import android.widget.Toast

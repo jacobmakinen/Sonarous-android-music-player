@@ -7,6 +7,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,14 +18,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -36,9 +43,16 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.sonarous.player.ui.theme.Audio_playerTheme
-import com.sonarous.player.ui.theme.lcdFont
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.sonarous.player.components.PlayerContentObserver
+import com.sonarous.player.components.PlayerListener
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.screens.BasicLoadingScreen
+import com.sonarous.player.screens.editSongAlbumArt
+import com.sonarous.player.screens.editSongTag
+import com.sonarous.player.ui.theme.shareTechFont
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -46,7 +60,7 @@ import kotlin.time.Duration.Companion.seconds
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @UnstableApi
 class MainActivity : ComponentActivity() {
-    val viewModel by viewModels<PlayerViewModel>(
+    private val viewModel by viewModels<PlayerViewModel>(
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -56,16 +70,20 @@ class MainActivity : ComponentActivity() {
             }
         }
     )
-    lateinit var controllerFuture: ListenableFuture<MediaController>
+    private lateinit var controllerFuture: ListenableFuture<MediaController>
+
+    private lateinit var observer: PlayerContentObserver
 
     @SuppressLint("InlinedApi")
     @ExperimentalFoundationApi
     @OptIn(UnstableApi::class, ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var songInfo: List<SongInfo>?
-        var albumInfo: List<AlbumInfo>?
-        //==================== Check & request permissions ====================//
+
+        val songInfo = mutableStateListOf<SongInfo>()
+        val albumInfo = mutableStateListOf<AlbumInfo>()
+
+        //==================== Assign permission launchers ====================//
         val requestPermissionLauncher = registerForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
         ) { requests ->
@@ -117,6 +135,25 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        viewModel.editAlbumArtLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK && viewModel.replicatedAlbumArt != null) {
+                editSongAlbumArt(this,viewModel.moreOptionsSelectedSong.songUri, viewModel.replicatedAlbumArt!!, viewModel)
+            }
+        }
+
+        viewModel.editSongTagLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK && viewModel.editSongTags != null) {
+                editSongTag(this,viewModel.moreOptionsSelectedSong.songUri, viewModel.editSongTags!!, viewModel)
+            }
+        }
+
+        // --------------------- Loading --------------------- //
+
         // Sets the settings' variables from the json
         viewModel.initViewModel(applicationContext)
 
@@ -133,10 +170,27 @@ class MainActivity : ComponentActivity() {
             { mediaController = controllerFuture.get() },
             MoreExecutors.directExecutor()
         )
+
+        // --------------------- Assign content observer --------------------- //
+        observer = PlayerContentObserver(Handler(Looper.getMainLooper())) {
+            getMediaInfo(this, requestPermissionLauncher).also {
+                if (it == null) return@also
+                songInfo.clear()
+                albumInfo.clear()
+                songInfo.addAll(it.first)
+                albumInfo.addAll(it.second)
+            }
+        }
+        contentResolver.registerContentObserver(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            true,
+            observer
+        )
+
         lifecycleScope.launch {
             val audioProcessor = PlayerService.AudioVisualizerProcessor
             audioProcessor.visualiserIsOn = true
-            viewModel.mediaInfoPair = requestInitPermissions(applicationContext, requestPermissionLauncher)
+            viewModel.mediaInfoPair = getMediaInfo(applicationContext, requestPermissionLauncher)
 
             enableEdgeToEdge()
             setContent {
@@ -149,8 +203,8 @@ class MainActivity : ComponentActivity() {
                 delay(10)
             }
 
-            songInfo = viewModel.mediaInfoPair!!.first
-            albumInfo = viewModel.mediaInfoPair!!.second
+            songInfo.addAll(viewModel.mediaInfoPair!!.first)
+            albumInfo.addAll(viewModel.mediaInfoPair!!.second)
             val listener = PlayerListener(applicationContext, viewModel, mediaController)
             mediaController.addListener(listener)
 
@@ -199,13 +253,14 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        contentResolver.unregisterContentObserver(observer)
         MediaController.releaseFuture(controllerFuture)
         super.onDestroy()
     }
 }
 
 @SuppressLint("UnsafeOptInUsageError")
-fun requestInitPermissions(
+fun getMediaInfo(
     context: Context,
     requestPermissionLauncher: ActivityResultLauncher<Array<String>>
 ): Pair<List<SongInfo>, List<AlbumInfo>>? {
@@ -268,24 +323,24 @@ fun requestInitPermissions(
 
 // Uppercase as lcd font only supports capitals
 @Composable
-fun LcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
+fun Text(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
-        text = if (text.length > 29) {
-            "${text.removeRange(30 until text.length)}...".uppercase()
+        text = if (text.length > 25) {
+            "${text.removeRange(26 until text.length)}..."
         } else {
-            text.uppercase()
+            text
         },
         color = viewModel.textColor,
         fontSize = 15.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
-        lineHeight = 4.sp
+        lineHeight = 4.sp,
     )
 }
 
 @Composable
-fun LargeLcdText(
+fun LargeText(
     text: String,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel,
@@ -293,63 +348,73 @@ fun LargeLcdText(
 ) {
     Text(
         modifier = modifier,
-        text = text.uppercase(),
+        text = text,
         color = viewModel.textColor,
-        fontSize = 20.sp,
-        fontFamily = lcdFont,
+        fontSize = 17.sp,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         lineHeight = lineHeight
     )
 }
 
 @Composable
-fun PlayerLargeLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
+fun PlayerLargeText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
         text = if (text.length > 31) {
-            "${text.removeRange(32 until text.length)}...".uppercase()
+            "${text.removeRange(32 until text.length)}..."
         } else {
-            text.uppercase()
+            text
         },
         color = viewModel.textColor,
         fontSize = 25.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         textAlign = TextAlign.Center,
     )
 }
 
 @Composable
-fun PlayerLcdText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
+fun PlayerText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
     Text(
         modifier = modifier,
         text = if (text.length > 31) {
-            "${text.removeRange(32 until text.length)}...".uppercase()
+            "${text.removeRange(32 until text.length)}..."
         } else {
-            text.uppercase()
+            text
         },
         color = viewModel.textColor,
         fontSize = 20.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         textAlign = TextAlign.Center,
     )
 }
 
 @Composable
-fun AlbumScreenLcdText(
+fun AlbumScreenText(
     text: String,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel
 ) {
     Text(
         modifier = modifier,
-        text = text.uppercase(),
+        text = text,
         color = viewModel.textColor,
         fontSize = 15.sp,
-        fontFamily = lcdFont,
+        fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         lineHeight = 15.sp
+    )
+}
+
+@Composable
+fun MyTextField(value: MutableState<String>) {
+    BasicTextField(
+        value = value.value,
+        onValueChange = {
+            value.value = it
+        },
     )
 }
 
