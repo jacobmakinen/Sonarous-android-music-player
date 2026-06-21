@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -64,8 +64,7 @@ class MainActivity : ComponentActivity() {
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return PlayerViewModel(
-                    ) as T
+                    return PlayerViewModel() as T
                 }
             }
         }
@@ -154,7 +153,7 @@ class MainActivity : ComponentActivity() {
 
         // --------------------- Loading --------------------- //
 
-        // Sets the settings' variables from the json
+        // Sets the settings' variables from the JSON
         viewModel.initViewModel(applicationContext)
 
         // Init media dependencies
@@ -187,6 +186,13 @@ class MainActivity : ComponentActivity() {
             observer
         )
 
+        // --------------------- Assign thermal monitoring --------------------- //
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        val thermalListener = PowerManager.OnThermalStatusChangedListener { status -> viewModel.thermalStatus = status }
+        powerManager.addThermalStatusListener(thermalListener)
+        viewModel.thermalStatus = powerManager.currentThermalStatus
+
+        // --------------------- UI --------------------- //
         lifecycleScope.launch {
             val audioProcessor = PlayerService.AudioVisualizerProcessor
             audioProcessor.visualiserIsOn = true
@@ -219,6 +225,7 @@ class MainActivity : ComponentActivity() {
                         applicationContext
                     )
 
+                    // --------------------- Monitoring --------------------- //
                     if (viewModel.isPlaying) {
                         LaunchedEffect(Unit) {
                             while (true) {
@@ -235,6 +242,14 @@ class MainActivity : ComponentActivity() {
                                     delay(1.seconds / 30)
                                 }
                             }
+                        }
+                    }
+                    LaunchedEffect(viewModel.thermalStatus) {
+                        if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_SEVERE) {
+                            audioProcessor.visualiserIsOn = false
+                        } else if (viewModel.thermalStatus <= PowerManager.THERMAL_STATUS_MODERATE) {
+                            // TODO - Should check to see if user wants visualizer hidden
+                            audioProcessor.visualiserIsOn = true
                         }
                     }
                 }
@@ -385,6 +400,19 @@ fun PlayerText(text: String, modifier: Modifier = Modifier, viewModel: PlayerVie
         },
         color = viewModel.textColor,
         fontSize = 20.sp,
+        fontFamily = shareTechFont,
+        fontWeight = FontWeight.Normal,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+fun MiscText(text: String, fontSize: TextUnit, viewModel: PlayerViewModel, modifier: Modifier = Modifier) {
+    Text(
+        modifier = modifier,
+        text = text,
+        color = viewModel.textColor,
+        fontSize = fontSize,
         fontFamily = shareTechFont,
         fontWeight = FontWeight.Normal,
         textAlign = TextAlign.Center,

@@ -2,14 +2,12 @@ package com.sonarous.player.components
 
 import android.content.Context
 import android.os.Handler
-import android.os.SystemClock
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.SonicAudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
-import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
@@ -43,10 +41,10 @@ class PlayerService : MediaSessionService() {
     }
 
     object AudioVisualizerProcessor : AudioProcessor {
-        private val _eqStateFlow = MutableStateFlow(
+        private val _visualizerStateFlow = MutableStateFlow(
             VisualiserData(doubleArrayOf(), 0.0, 1000L)
         )
-        val eqStateFlow: StateFlow<VisualiserData> = _eqStateFlow.asStateFlow()
+        val visualizerStateFlow: StateFlow<VisualiserData> = _visualizerStateFlow.asStateFlow()
         var speed = 1f
         var pitch = 1f
         var visualiserIsOn = false
@@ -56,7 +54,7 @@ class PlayerService : MediaSessionService() {
         private var fft = DoubleFFT_1D(ARRAY_SIZE.toLong())
         private var endOfStreamQueued = false
         private var isEnded = false
-        var eqList = DoubleArray(7)
+        var visualizerList = DoubleArray(7)
         var volume = 0.0
         var usingSonicProcessor = false
         private val emissionScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -134,17 +132,17 @@ class PlayerService : MediaSessionService() {
                     i++
                 }
                 bufferVolume = sqrt(bufferVolume / ARRAY_SIZE)
-                eqList = frequencyCalculator(absValueList)
+                visualizerList = frequencyCalculator(absValueList)
                 volume = bufferVolume
 
-                val capturedEqList = eqList.copyOf()
+                val capturedVisualizerList = visualizerList.copyOf()
                 val capturedVolume = volume
 //                val delayMs = actualAudioLatencyMs.coerceAtLeast(0L)
 
                 emissionScope.launch {
                     delay(500)
-                    _eqStateFlow.emit(
-                        VisualiserData(capturedEqList, capturedVolume, 500)
+                    _visualizerStateFlow.emit(
+                        VisualiserData(capturedVisualizerList, capturedVolume, 500)
                     )
                 }
             }

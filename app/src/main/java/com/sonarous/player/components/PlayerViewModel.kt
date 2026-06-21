@@ -24,7 +24,7 @@ import com.sonarous.player.ui.theme.LcdBlueWhite
 import com.sonarous.player.ui.theme.LcdGrey
 import org.jaudiotagger.tag.FieldKey
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel() : ViewModel() {
     //========================= Media info =========================
     var duration by mutableFloatStateOf(0f) // Length of song
         private set
@@ -46,8 +46,8 @@ class PlayerViewModel : ViewModel() {
     var backgroundColor = LcdGrey
     var textColor = Color.White
     var iconColor = Color.White
-    var eqLevelColor = Color.White
-    var eqTextColor = LcdBlueWhite
+    var visualizerLevelColor = Color.White
+    var visualizerTextColor = LcdBlueWhite
     var sliderThumbColor = Color.White
     var sliderTrackColor = Color.White
     val colorMap = mutableStateMapOf(
@@ -79,7 +79,7 @@ class PlayerViewModel : ViewModel() {
     val customColorMap = mutableMapOf<String, Int>()
     //========================= Miscellaneous/Settings =========================//
     var loadingFinished by mutableStateOf(false)
-    var showEqualiser by mutableStateOf(true)
+    var showVisualizer by mutableStateOf(true)
     var audioEffectMenuExpanded by mutableStateOf(false)
     var audioEffectSpeed by mutableFloatStateOf(1f)
     var audioEffectPitch by mutableFloatStateOf(1f)
@@ -87,6 +87,7 @@ class PlayerViewModel : ViewModel() {
     lateinit var songsScreenLazyColumnState: LazyListState
     lateinit var queuedSongsLazyColumnState: LazyListState
     lateinit var albumScreenLazyColumnState: LazyListState
+    var thermalStatus by mutableIntStateOf(0)
     //========================= More options screen =========================//
     var showMoreSongOptions by mutableStateOf(false)
     var replicatedAlbumArt: Bitmap? = null
@@ -101,8 +102,8 @@ class PlayerViewModel : ViewModel() {
         backgroundColor = Color(settings.backgroundColor)
         textColor = Color(settings.textColor)
         iconColor = Color(settings.iconColor)
-        eqTextColor = Color(settings.eqTextColor)
-        eqLevelColor = Color(settings.eqLevelColor)
+        visualizerTextColor = Color(settings.visualizerTextColor)
+        visualizerLevelColor = Color(settings.visualizerLevelColor)
         sliderThumbColor = Color(settings.sliderThumbColor)
         sliderTrackColor = Color(settings.sliderTrackColor)
         customColorMap.putAll(settings.customColors)
@@ -112,7 +113,7 @@ class PlayerViewModel : ViewModel() {
         }
         colorMap.putAll(intToColorMap)
         otherColorMap.putAll(intToColorMap)
-        showEqualiser = settings.showEqualiser
+        showVisualizer = settings.showVisualizer
     }
     //========================= Setters =========================
     fun updateLastPlayedUnshuffledSong() {
@@ -137,10 +138,10 @@ class PlayerViewModel : ViewModel() {
                     iconColor = color
                 }
                 "eqLevel" -> {
-                    eqLevelColor = color
+                    visualizerLevelColor = color
                 }
                 "eqText" -> {
-                    eqTextColor = color
+                    visualizerTextColor = color
                 }
                 "sliderThumb" -> {
                     sliderThumbColor = color

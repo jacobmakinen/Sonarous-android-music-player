@@ -89,10 +89,10 @@ fun DotoText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewM
         fontFamily = dotoFamily,
         fontWeight = FontWeight.W600,
         fontSize = 8.sp,
-        color = viewModel.eqTextColor,
+        color = viewModel.visualizerTextColor,
         style = TextStyle(
             shadow = Shadow(
-                color = viewModel.eqTextColor.copy(alpha = 0.8f),
+                color = viewModel.visualizerTextColor.copy(alpha = 0.8f),
                 offset = Offset(0f,0f),
                 blurRadius = 20f
             )

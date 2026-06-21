@@ -126,7 +126,7 @@ fun HorizontalThemeChange(viewModel: PlayerViewModel, navController: NavControll
     val scrollState = ScrollState(0)
     val tmpColorSettings = mutableMapOf<String, Int>()
     val tmpMiscSettings = mutableMapOf(
-        "showEqualiser" to viewModel.showEqualiser
+        "showVisualizer" to viewModel.showVisualizer
     )
     Column(
         modifier = Modifier
@@ -182,11 +182,11 @@ fun HorizontalThemeChange(viewModel: PlayerViewModel, navController: NavControll
         ColourListDropDownMenu("background", "background", viewModel, tmpColorSettings, viewModel.backgroundColor)
         ColourOtherListDropDownMenu("text", "text", viewModel, tmpColorSettings, viewModel.textColor)
         ColourOtherListDropDownMenu("icon", "icon", viewModel, tmpColorSettings, viewModel.iconColor)
-        ColourOtherListDropDownMenu("equaliser's level","eqLevel", viewModel, tmpColorSettings, viewModel.eqLevelColor)
-        ColourListDropDownMenu("equaliser's text","eqText", viewModel, tmpColorSettings, viewModel.eqTextColor)
+        ColourOtherListDropDownMenu("equaliser's level","eqLevel", viewModel, tmpColorSettings, viewModel.visualizerLevelColor)
+        ColourListDropDownMenu("equaliser's text","eqText", viewModel, tmpColorSettings, viewModel.visualizerTextColor)
         ColourListDropDownMenu("seek bar's thumb","sliderThumb", viewModel, tmpColorSettings, viewModel.sliderThumbColor)
         ColourListDropDownMenu("seek bar's track","sliderTrack", viewModel, tmpColorSettings, viewModel.sliderTrackColor)
-        EQVisibilitySwitch(viewModel, tmpMiscSettings)
+        VisualizerVisibilitySwitch(viewModel, tmpMiscSettings)
         // Customisation buttons
         Row(
             modifier = Modifier
@@ -215,7 +215,7 @@ fun HorizontalThemeChange(viewModel: PlayerViewModel, navController: NavControll
 fun PortraitThemeChange(viewModel: PlayerViewModel, navController: NavController, context: Context) {
     val tmpColorSettings = mutableMapOf<String, Int>()
     val tmpMiscSettings = mutableMapOf(
-        "showEqualiser" to viewModel.showEqualiser
+        "showVisualizer" to viewModel.showVisualizer
     )
     Column(
         modifier = Modifier
@@ -267,11 +267,11 @@ fun PortraitThemeChange(viewModel: PlayerViewModel, navController: NavController
         ColourListDropDownMenu("background", "background", viewModel, tmpColorSettings, viewModel.backgroundColor)
         ColourOtherListDropDownMenu("text", "text", viewModel, tmpColorSettings, viewModel.textColor)
         ColourOtherListDropDownMenu("icon", "icon", viewModel, tmpColorSettings, viewModel.iconColor)
-        ColourOtherListDropDownMenu("equaliser's level","eqLevel", viewModel, tmpColorSettings, viewModel.eqLevelColor)
-        ColourListDropDownMenu("equaliser's text","eqText", viewModel, tmpColorSettings, viewModel.eqTextColor)
+        ColourOtherListDropDownMenu("equaliser's level","eqLevel", viewModel, tmpColorSettings, viewModel.visualizerLevelColor)
+        ColourListDropDownMenu("equaliser's text","eqText", viewModel, tmpColorSettings, viewModel.visualizerTextColor)
         ColourListDropDownMenu("seek bar's thumb","sliderThumb", viewModel, tmpColorSettings, viewModel.sliderThumbColor)
         ColourListDropDownMenu("seek bar's track","sliderTrack", viewModel, tmpColorSettings, viewModel.sliderTrackColor)
-        EQVisibilitySwitch(viewModel, tmpMiscSettings)
+        VisualizerVisibilitySwitch(viewModel, tmpMiscSettings)
         // Customisation buttons
         Row(
             modifier = Modifier
@@ -295,7 +295,7 @@ fun PortraitThemeChange(viewModel: PlayerViewModel, navController: NavController
     }
 }
 @Composable
-fun EQVisibilitySwitch(viewModel: PlayerViewModel, tmpMiscSettings: MutableMap<String, Boolean>) {
+fun VisualizerVisibilitySwitch(viewModel: PlayerViewModel, tmpMiscSettings: MutableMap<String, Boolean>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -303,16 +303,16 @@ fun EQVisibilitySwitch(viewModel: PlayerViewModel, tmpMiscSettings: MutableMap<S
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        var switched by remember { mutableStateOf(viewModel.showEqualiser) }
+        var switched by remember { mutableStateOf(viewModel.showVisualizer) }
         Text(
-            "Switch equaliser on / off",
+            "Switch visualizer on / off",
             viewModel = viewModel
         )
         Switch(
             checked = switched,
             onCheckedChange = {
                 switched = !switched
-                tmpMiscSettings["showEqualiser"] = switched
+                tmpMiscSettings["showVisualizer"] = switched
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = viewModel.iconColor,
@@ -340,11 +340,11 @@ fun ResetToDefaultsButton(viewModel: PlayerViewModel, context: Context) {
             viewModel.updateColor("background", Color(defaultData.backgroundColor))
             viewModel.updateColor("text", Color(defaultData.textColor))
             viewModel.updateColor("icon", Color(defaultData.iconColor))
-            viewModel.updateColor("eqLevel", Color(defaultData.eqLevelColor))
-            viewModel.updateColor("eqText", Color(defaultData.eqTextColor))
+            viewModel.updateColor("eqLevel", Color(defaultData.visualizerLevelColor))
+            viewModel.updateColor("eqText", Color(defaultData.visualizerTextColor))
             viewModel.updateColor("sliderThumb", Color(defaultData.sliderThumbColor))
             viewModel.updateColor("sliderTrack", Color(defaultData.sliderTrackColor))
-            viewModel.showEqualiser = true
+            viewModel.showVisualizer = true
             settingsManager.saveSettings(defaultData)
         },
         colors = ButtonDefaults.buttonColors(
@@ -395,9 +395,9 @@ fun SaveChangesButton(
                     viewModel.updateColor(i, Color(tmpColorSettings[i]!!))
                 }
             }
-            viewModel.showEqualiser = (
+            viewModel.showVisualizer = (
                 tmpMiscSettings.getOrElse(
-                    "showEqualiser"
+                    "showVisualizer"
                 ) { true }
             )
             saveChanges(viewModel, context)
@@ -419,12 +419,12 @@ fun saveChanges(viewModel: PlayerViewModel, context: Context) {
         viewModel.backgroundColor.toArgb(),
         viewModel.textColor.toArgb(),
         viewModel.iconColor.toArgb(),
-        viewModel.eqLevelColor.toArgb(),
-        viewModel.eqTextColor.toArgb(),
+        viewModel.visualizerLevelColor.toArgb(),
+        viewModel.visualizerTextColor.toArgb(),
         viewModel.sliderThumbColor.toArgb(),
         viewModel.sliderTrackColor.toArgb(),
         viewModel.customColorMap,
-        viewModel.showEqualiser
+        viewModel.showVisualizer
     )
     val settingsManager = SettingsManager(context)
     settingsManager.saveSettings(data)

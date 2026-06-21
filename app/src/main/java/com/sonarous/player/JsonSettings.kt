@@ -15,12 +15,12 @@ data class SettingsData(
     val backgroundColor: Int = LcdGrey.toArgb(),
     val textColor: Int = Color.White.toArgb(),
     val iconColor: Int = Color.White.toArgb(),
-    val eqLevelColor: Int = Color.White.toArgb(),
-    val eqTextColor: Int = LcdBlueWhite.toArgb(),
+    val visualizerLevelColor: Int = Color.White.toArgb(),
+    val visualizerTextColor: Int = LcdBlueWhite.toArgb(),
     val sliderThumbColor: Int = Color.White.toArgb(),
     val sliderTrackColor: Int = changeBrightness(Color.White.toArgb(), 0.8f).toArgb(),
     val customColors: Map<String, Int>,
-    val showEqualiser: Boolean = true,
+    val showVisualizer: Boolean = true,
 )
 
 class SettingsManager(context: Context) {

@@ -1,8 +1,12 @@
-package com.sonarous.player
+package com.sonarous.player.screens
 
 import android.content.res.Configuration
+import android.os.PowerManager
 import androidx.annotation.OptIn
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.EaseOutSine
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,10 +32,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +50,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -50,6 +58,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -63,15 +73,16 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
-import com.sonarous.player.LargeText
-import com.sonarous.player.Text
+import com.sonarous.player.MiscText
 import com.sonarous.player.PlayerLargeText
 import com.sonarous.player.PlayerText
-import com.sonarous.player.components.PlayerService
-import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
+import com.sonarous.player.Text
 import com.sonarous.player.Visualizer
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
+import com.sonarous.player.ui.theme.dotoFamily
 import java.lang.Thread.sleep
 
 @ExperimentalMaterial3Api
@@ -111,7 +122,9 @@ fun PortraitOrientation(
         )
         PlayingMediaInfo(viewModel)
         PlaybackControls(mediaController, viewModel)
-        if (viewModel.showEqualiser) {
+        if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_SEVERE) {
+            ThermalVisualizerWarning(viewModel)
+        } else if (viewModel.showVisualizer) {
             Visualizer(audioProcessor, viewModel)
         }
         OtherMediaControls(
@@ -122,6 +135,126 @@ fun PortraitOrientation(
         )
         SeekBar(mediaController, viewModel)
     }
+}
+
+//@Composable
+//fun ThermalVisualizerWarning(viewModel: PlayerViewModel) {
+//    Box(
+//        modifier = Modifier
+//            .size(340.dp, 140.dp)
+//            .border(0.dp, viewModel.iconColor),
+//        contentAlignment = Alignment.Center
+//    ) {
+//        Row(
+//            modifier = Modifier.padding(15.dp),
+//            horizontalArrangement = Arrangement.Center,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Icon(painterResource(R.drawable.thermal_alert), null, tint = viewModel.iconColor, modifier = Modifier.size(30.dp))
+//            MiscText("Thermal overload : Visualizer suppressed", fontSize = 17.sp, viewModel = viewModel)
+//        }
+//    }
+//}
+
+@Composable
+fun ThermalVisualizerWarning(viewModel: PlayerViewModel) {
+    Column(
+        modifier = Modifier
+            .size(340.dp, 140.dp)
+            .border(0.dp, viewModel.iconColor)
+            .padding(horizontal = 5.dp, vertical = 15.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        MiscText("Thermal overload : Visualizer suppressed", fontSize = 17.sp, viewModel = viewModel)
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(painterResource(R.drawable.thermal_alert), null, tint = viewModel.iconColor, modifier = Modifier.size(40.dp).offset(10.dp))
+            ThermalBar()
+        }
+    }
+}
+
+@Composable
+fun ThermalBar() {
+    val colors = arrayOf(
+        Color(0xFFBB1D3B),
+        Color(0xFFCB2443),
+        Color(0xFFD43C53),
+        Color(0xFFE26E83),
+        Color(0xFFEF9DAE),
+        Color(0xFFFDD3DB)
+    )
+    val textRanges = arrayOf(17, 6, 4, 3, 2, 2)
+    val offsets = arrayOf(0.dp, 8.dp, 5.dp, -5.dp, -20.dp, -35.dp)
+
+    Row(
+        modifier = Modifier
+            .height(50.dp)
+            .width(170.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        var delay = 0
+        val duration = 400
+        for (i in colors.indices) {
+            var loadingProgressRange by remember { mutableIntStateOf(0) }
+            LaunchedEffect(Unit) {
+                loadingProgressRange = textRanges[i]
+            }
+            val loadingProgress by animateIntAsState(
+                targetValue = loadingProgressRange,
+                TweenSpec(
+                    durationMillis = duration,
+                    easing = EaseOutSine,
+                    delay = delay
+                )
+            )
+            delay += duration
+            ThermalDotoText(
+                text = thermalTextLevelBuilder(0..loadingProgress),
+                modifier = Modifier
+                    .graphicsLayer(
+                        rotationZ = -90f
+                    )
+                    .offset(0.dp, offsets[i]),
+                color = colors[i]
+            )
+        }
+    }
+}
+
+fun thermalTextLevelBuilder(n: IntRange): String {
+    var tempText = ""
+    for (i in n) {
+        tempText += "______\n"
+    }
+    return tempText
+}
+
+@Composable
+fun ThermalDotoText(text: String, modifier: Modifier = Modifier, color: Color) {
+    Text(
+        modifier = modifier,
+        text = text,
+        fontFamily = dotoFamily,
+        fontWeight = FontWeight.W600,
+        fontSize = 8.sp,
+        color = color,
+        style = TextStyle(
+            shadow = Shadow(
+                color = color.copy(alpha = 0.8f),
+                offset = Offset(0f,0f),
+                blurRadius = 20f
+            )
+        ),
+        lineHeight = 4.sp
+    )
 }
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
@@ -153,7 +286,9 @@ fun HorizontalOrientation(
             HorizontalPlayingMediaInfo(viewModel)
             PlaybackControls(mediaController, viewModel, 46.dp)
             SeekBarAndOtherControls(viewModel, mediaController, songInfo, audioProcessor)
-            if (viewModel.showEqualiser) {
+            if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_SEVERE) {
+                ThermalVisualizerWarning(viewModel)
+            } else if (viewModel.showVisualizer) {
                 Visualizer(audioProcessor, viewModel)
             }
         }
@@ -899,7 +1034,7 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
                 SettingsSliderTrack(viewModel)
             },
         )
-        LargeText(
+        _root_ide_package_.com.sonarous.player.LargeText(
             "%.2f".format(
                 if (type == "Speed") {
                     viewModel.audioEffectSpeed
@@ -934,7 +1069,7 @@ fun JointSpeedPitchSlider(viewModel: PlayerViewModel) {
     ) {
         Slider(
             modifier = Modifier
-                .layout { measurable, constraints ->
+                .layout { measurable, _ ->
                     val placeable = measurable.measure(
                         Constraints.fixed(
                             width = 120.dp.roundToPx(),

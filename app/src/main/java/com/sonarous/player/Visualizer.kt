@@ -40,9 +40,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.ui.theme.dotoFamily
 import com.sonarous.player.ui.theme.orbitronFamily
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(UnstableApi::class)
@@ -52,14 +53,14 @@ fun Visualizer(
     viewModel: PlayerViewModel
 ) {
     val scope = rememberCoroutineScope()
-    var eqList by remember { mutableStateOf(doubleArrayOf()) }
+    var visualizerList by remember { mutableStateOf(doubleArrayOf()) }
     var volume by remember { mutableDoubleStateOf(0.0) }
 
     // Collecting flow data from spectrum analyzer
-    val stateFlowData = spectrumAnalyzer.eqStateFlow.collectAsState()
+    val stateFlowData = spectrumAnalyzer.visualizerStateFlow.collectAsState()
     remember(stateFlowData.value) {
         scope.launch {
-            eqList = stateFlowData.value.visualiserList
+            visualizerList = stateFlowData.value.visualiserList
             volume = stateFlowData.value.volume
         }
     }
@@ -95,9 +96,9 @@ fun Visualizer(
                 .width(15.dp)
         )
         //======================== Equaliser ========================//
-        EQLevelAxis(viewModel)
+        VisualizerLevelAxis(viewModel)
         for (i in 0..6) { // 7 band EQ
-            EQLevelColumn(fieldName[i], viewModel, eqList)
+            VisualizerLevelColumn(fieldName[i], viewModel, visualizerList)
         }
     }
 }
@@ -120,11 +121,11 @@ fun VolumeLevelAxis(viewModel: PlayerViewModel) {
             fontWeight = FontWeight.W300,
             fontFamily = orbitronFamily,
             fontSize = 5.sp,
-            color = viewModel.eqTextColor,
+            color = viewModel.visualizerTextColor,
             lineHeight = 2.sp,
             style = TextStyle(
                 shadow = Shadow(
-                    color = viewModel.eqTextColor.copy(alpha = colorAlpha),
+                    color = viewModel.visualizerTextColor.copy(alpha = colorAlpha),
                     offset = Offset(0f, 0f),
                     blurRadius = 20f
                 )
@@ -141,11 +142,11 @@ fun VolumeLevelAxis(viewModel: PlayerViewModel) {
             fontWeight = FontWeight.W300,
             fontFamily = orbitronFamily,
             fontSize = 5.sp,
-            color = viewModel.eqTextColor,
+            color = viewModel.visualizerTextColor,
             lineHeight = 2.sp,
             style = TextStyle(
                 shadow = Shadow(
-                    color = viewModel.eqTextColor.copy(alpha = 0.6f),
+                    color = viewModel.visualizerTextColor.copy(alpha = 0.6f),
                     offset = Offset(0f, 0f),
                     blurRadius = 20f
                 )
@@ -162,11 +163,11 @@ fun VolumeLevelAxis(viewModel: PlayerViewModel) {
             fontFamily = orbitronFamily,
             fontWeight = FontWeight.W300,
             fontSize = 5.sp,
-            color = viewModel.eqTextColor,
+            color = viewModel.visualizerTextColor,
             lineHeight = 10.sp,
             style = TextStyle(
                 shadow = Shadow(
-                    color = viewModel.eqTextColor.copy(alpha = colorAlpha),
+                    color = viewModel.visualizerTextColor.copy(alpha = colorAlpha),
                     offset = Offset(0f, 0f),
                     blurRadius = 20f
                 )
@@ -181,18 +182,18 @@ fun VolumeLevelAxis(viewModel: PlayerViewModel) {
             .shadow(
                 shape = RectangleShape,
                 elevation = 2.dp,
-                ambientColor = viewModel.eqTextColor.copy(alpha = 0.8f)
+                ambientColor = viewModel.visualizerTextColor.copy(alpha = 0.8f)
             )
     ) {
         drawRect(
-            color = viewModel.eqTextColor,
+            color = viewModel.visualizerTextColor,
             size = Size(width = 1f, height = 131.dp.toPx()),
         )
     }
 }
 
 @Composable
-fun EQLevelAxis(viewModel: PlayerViewModel) {
+fun VisualizerLevelAxis(viewModel: PlayerViewModel) {
     Column( // Arbitrary measure dashes
         modifier = Modifier
             .fillMaxHeight()
@@ -213,11 +214,11 @@ fun EQLevelAxis(viewModel: PlayerViewModel) {
             .shadow(
                 shape = RectangleShape,
                 elevation = 2.dp,
-                ambientColor = viewModel.eqTextColor.copy(alpha = 0.8f)
+                ambientColor = viewModel.visualizerTextColor.copy(alpha = 0.8f)
             )
     ) {
         drawRect(
-            color = viewModel.eqTextColor,
+            color = viewModel.visualizerTextColor,
             size = Size(width = 1f, height = 130.65.dp.toPx()),
         )
     }
@@ -242,11 +243,11 @@ fun VolumeLevelTick(viewModel: PlayerViewModel) {
                     text = "_",
                     fontWeight = FontWeight.W300,
                     fontSize = 7.sp,
-                    color = viewModel.eqTextColor,
+                    color = viewModel.visualizerTextColor,
                     lineHeight = 10.sp,
                     style = TextStyle(
                         shadow = Shadow(
-                            color = viewModel.eqTextColor.copy(alpha = 0.8f),
+                            color = viewModel.visualizerTextColor.copy(alpha = 0.8f),
                             offset = Offset(0f, 0f),
                             blurRadius = 8f
                         )
@@ -259,7 +260,7 @@ fun VolumeLevelTick(viewModel: PlayerViewModel) {
 
 @OptIn(UnstableApi::class)
 @Composable
-fun EQLevelColumn(fieldName: String, viewModel: PlayerViewModel, eqList: DoubleArray) {
+fun VisualizerLevelColumn(fieldName: String, viewModel: PlayerViewModel, visualizerList: DoubleArray) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -277,8 +278,8 @@ fun EQLevelColumn(fieldName: String, viewModel: PlayerViewModel, eqList: DoubleA
         ) {
             val tick = viewModel.currentSongPosition
             if (viewModel.isPlaying) {
-                EQLevelText(fieldName, tick, viewModel, eqList)
-                EQLevelText(fieldName, tick, viewModel, eqList)
+                VisualizerLevelText(fieldName, tick, viewModel, visualizerList)
+                VisualizerLevelText(fieldName, tick, viewModel, visualizerList)
             }
         }
     }
@@ -287,26 +288,26 @@ fun EQLevelColumn(fieldName: String, viewModel: PlayerViewModel, eqList: DoubleA
 //============================== EQ level ==============================//
 @OptIn(UnstableApi::class)
 @Composable
-fun EQLevelText(fieldName: String, tick: Float, viewModel: PlayerViewModel, eqList: DoubleArray) {
-    val eqTransition = rememberInfiniteTransition()
+fun VisualizerLevelText(fieldName: String, tick: Float, viewModel: PlayerViewModel, visualizerList: DoubleArray) {
+    val visualizerTransition = rememberInfiniteTransition()
 
     val target = remember(tick) {
-        if (eqList.count() != 0) {
+        if (visualizerList.count() != 0) {
             when (fieldName) {
-                "63" -> level63(eqList[0])
-                "16O" -> level160(eqList[1])
-                "4OO" -> level400(eqList[2])
-                "1k" -> level1k(eqList[3])
-                "2.5k" -> level2500k(eqList[4])
-                "6.3k" -> level6300k(eqList[5])
-                "16k" -> level16k(eqList[6])
+                "63" -> level63(visualizerList[0])
+                "16O" -> level160(visualizerList[1])
+                "4OO" -> level400(visualizerList[2])
+                "1k" -> level1k(visualizerList[3])
+                "2.5k" -> level2500k(visualizerList[4])
+                "6.3k" -> level6300k(visualizerList[5])
+                "16k" -> level16k(visualizerList[6])
                 else -> 0f
             }
         } else {
             0f
         }
     }
-    val levels by eqTransition.animateFloat(
+    val levels by visualizerTransition.animateFloat(
         initialValue = 0f,
         targetValue = target,
         animationSpec = infiniteRepeatable(
@@ -324,7 +325,7 @@ fun EQLevelText(fieldName: String, tick: Float, viewModel: PlayerViewModel, eqLi
         fontFamily = dotoFamily,
         fontWeight = FontWeight.W100,
         fontSize = 23.sp,
-        color = viewModel.eqLevelColor,
+        color = viewModel.visualizerLevelColor,
         letterSpacing = 0.sp,
         lineHeight = 3.sp,
         textAlign = TextAlign.Center,
@@ -339,11 +340,11 @@ fun VolumeLevelText(
     viewModel: PlayerViewModel,
     volumeLevel: Double
 ) {
-    val eqTransition = rememberInfiniteTransition()
+    val visualizerTransition = rememberInfiniteTransition()
     val target = remember(tick) {
         volumeLevel(volumeLevel)
     }
-    val levels by eqTransition.animateFloat(
+    val levels by visualizerTransition.animateFloat(
         initialValue = 0f,
         targetValue = target,
         animationSpec = infiniteRepeatable(
@@ -361,7 +362,7 @@ fun VolumeLevelText(
         fontFamily = dotoFamily,
         fontWeight = FontWeight.W100,
         fontSize = 23.sp,
-        color = viewModel.eqLevelColor,
+        color = viewModel.visualizerLevelColor,
         letterSpacing = 0.sp,
         lineHeight = 3.sp,
         textAlign = TextAlign.Center
@@ -479,10 +480,10 @@ fun OrbitronText(text: String, modifier: Modifier = Modifier, viewModel: PlayerV
         fontFamily = orbitronFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 8.sp,
-        color = viewModel.eqTextColor,
+        color = viewModel.visualizerTextColor,
         style = TextStyle(
             shadow = Shadow(
-                color = viewModel.eqTextColor.copy(alpha = 0.8f),
+                color = viewModel.visualizerTextColor.copy(alpha = 0.8f),
                 offset = Offset(0f, 0f),
                 blurRadius = 20f
             )
