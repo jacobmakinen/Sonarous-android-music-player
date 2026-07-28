@@ -47,15 +47,6 @@ fun InfoScreen(viewModel: PlayerViewModel, navController: NavController) {
     ) {
         NavHostBackButtonRow(viewModel, navController, "Info")
         OpenSourceInfo(viewModel)
-        InfoText(
-            text = "Help:",
-            viewModel = viewModel,
-            fontSize = 19.sp
-        )
-        InfoText(
-            text = "Can't see your music?\nMake sure it's in your phone's \"Music\" folder",
-            viewModel = viewModel
-        )
     }
 }
 
@@ -74,7 +65,8 @@ fun OpenSourceInfo(viewModel: PlayerViewModel) {
         InfoText(
             "Licences for open source libraries used:\n",
             viewModel = viewModel,
-            fontSize = 19.sp
+            fontSize = 19.sp,
+            modifier = Modifier.fillMaxWidth(0.9f)
         )
         if (expandedOpenSourceInfo) {
             Icon(
@@ -145,6 +137,19 @@ fun OpenSourceInfo(viewModel: PlayerViewModel) {
                         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
                         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     """.trimIndent(),
+                        viewModel = viewModel
+                    )
+                }
+                item {
+                    Spacer(Modifier.height(10.dp))
+                    InfoText(
+                        """
+                        JAudioTagger
+                        Copyright (C) 2015 Paul Taylor
+                        
+                        Distributed under the GNU Lesser General Public License v2.1
+                        A copy of the license can be found here: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
+                        """.trimIndent(),
                         viewModel = viewModel
                     )
                 }

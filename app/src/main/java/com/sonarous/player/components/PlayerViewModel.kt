@@ -95,7 +95,7 @@ class PlayerViewModel : ViewModel() {
     var editAlbumArtLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
     var editSongTagLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
     var editSongTags: Array<Pair<FieldKey, String>>? = null
-    //========================= Init from Json =========================//
+    //========================= Init from JSON =========================//
     fun initViewModel(context: Context) {
         val settingsManager = SettingsManager(context)
         val settings = settingsManager.loadSettings()
