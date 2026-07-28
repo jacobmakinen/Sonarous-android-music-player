@@ -19,20 +19,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.ViewModel
@@ -42,7 +33,6 @@ import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.sonarous.player.ui.theme.Audio_playerTheme
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.sonarous.player.components.PlayerContentObserver
@@ -52,7 +42,7 @@ import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.screens.BasicLoadingScreen
 import com.sonarous.player.screens.editSongAlbumArt
 import com.sonarous.player.screens.editSongTag
-import com.sonarous.player.ui.theme.shareTechFont
+import com.sonarous.player.ui.theme.Audio_playerTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -336,115 +326,6 @@ fun getMediaInfo(
     return mediaInfoPair
 }
 
-// Uppercase as lcd font only supports capitals
-@Composable
-fun Text(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
-    Text(
-        modifier = modifier,
-        text = if (text.length > 25) {
-            "${text.removeRange(26 until text.length)}..."
-        } else {
-            text
-        },
-        color = viewModel.textColor,
-        fontSize = 15.sp,
-        fontFamily = shareTechFont,
-        fontWeight = FontWeight.Normal,
-        lineHeight = 4.sp,
-    )
-}
-
-@Composable
-fun LargeText(
-    text: String,
-    modifier: Modifier = Modifier,
-    viewModel: PlayerViewModel,
-    lineHeight: TextUnit = 17.sp
-) {
-    Text(
-        modifier = modifier,
-        text = text,
-        color = viewModel.textColor,
-        fontSize = 17.sp,
-        fontFamily = shareTechFont,
-        fontWeight = FontWeight.Normal,
-        lineHeight = lineHeight
-    )
-}
-
-@Composable
-fun PlayerLargeText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
-    Text(
-        modifier = modifier,
-        text = if (text.length > 31) {
-            "${text.removeRange(32 until text.length)}..."
-        } else {
-            text
-        },
-        color = viewModel.textColor,
-        fontSize = 25.sp,
-        fontFamily = shareTechFont,
-        fontWeight = FontWeight.Normal,
-        textAlign = TextAlign.Center,
-    )
-}
-
-@Composable
-fun PlayerText(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
-    Text(
-        modifier = modifier,
-        text = if (text.length > 31) {
-            "${text.removeRange(32 until text.length)}..."
-        } else {
-            text
-        },
-        color = viewModel.textColor,
-        fontSize = 20.sp,
-        fontFamily = shareTechFont,
-        fontWeight = FontWeight.Normal,
-        textAlign = TextAlign.Center,
-    )
-}
-
-@Composable
-fun MiscText(text: String, fontSize: TextUnit, viewModel: PlayerViewModel, modifier: Modifier = Modifier) {
-    Text(
-        modifier = modifier,
-        text = text,
-        color = viewModel.textColor,
-        fontSize = fontSize,
-        fontFamily = shareTechFont,
-        fontWeight = FontWeight.Normal,
-        textAlign = TextAlign.Center,
-    )
-}
-
-@Composable
-fun AlbumScreenText(
-    text: String,
-    modifier: Modifier = Modifier,
-    viewModel: PlayerViewModel
-) {
-    Text(
-        modifier = modifier,
-        text = text,
-        color = viewModel.textColor,
-        fontSize = 15.sp,
-        fontFamily = shareTechFont,
-        fontWeight = FontWeight.Normal,
-        lineHeight = 15.sp
-    )
-}
-
-@Composable
-fun MyTextField(value: MutableState<String>) {
-    BasicTextField(
-        value = value.value,
-        onValueChange = {
-            value.value = it
-        },
-    )
-}
 
 fun Color.increaseBrightness(brightness: Float): Color {
     val hsl = FloatArray(3)

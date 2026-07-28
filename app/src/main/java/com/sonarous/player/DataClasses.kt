@@ -6,8 +6,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 
 data class VisualiserData(
     val visualiserList: DoubleArray,
-    val volume: Double,
-    val latency: Long
+    val volume: Double
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -16,7 +15,6 @@ data class VisualiserData(
         other as VisualiserData
 
         if (volume != other.volume) return false
-        if (latency != other.latency) return false
         if (!visualiserList.contentEquals(other.visualiserList)) return false
 
         return true
@@ -24,7 +22,6 @@ data class VisualiserData(
 
     override fun hashCode(): Int {
         var result = volume.hashCode()
-        result = 31 * result + latency.hashCode()
         result = 31 * result + visualiserList.contentHashCode()
         return result
     }
@@ -44,5 +41,3 @@ data class AlbumInfo(
     val albumName: String,
     val albumArt: ImageBitmap
 )
-
-data class TmpAudioEffectValue(var value: MutableFloatState)

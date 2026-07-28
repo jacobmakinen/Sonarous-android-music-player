@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,7 +103,7 @@ fun AlbumScreen(
                         }
                     } else {
                         if (rowNumbers != rowIndex + 1) {
-                            for (index in 0..elementsPerRow - 1) {
+                            for (index in 0 until elementsPerRow) {
                                 Column(
                                     modifier = Modifier
                                         .padding(horizontal = 5.dp)

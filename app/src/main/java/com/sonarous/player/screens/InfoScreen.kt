@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.sonarous.player.BackButtonRow
+import com.sonarous.player.NavHostBackButtonRow
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.ui.theme.shareTechFont
@@ -45,7 +45,7 @@ fun InfoScreen(viewModel: PlayerViewModel, navController: NavController) {
             .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(horizontal = 5.dp)
     ) {
-        BackButtonRow(viewModel, navController, "Info")
+        NavHostBackButtonRow(viewModel, navController, "Info")
         OpenSourceInfo(viewModel)
         InfoText(
             text = "Help:",

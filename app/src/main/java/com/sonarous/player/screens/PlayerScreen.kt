@@ -73,15 +73,16 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
+import com.sonarous.player.LargeText
 import com.sonarous.player.MiscText
 import com.sonarous.player.PlayerLargeText
 import com.sonarous.player.PlayerText
+import com.sonarous.player.components.PlayerService
+import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
 import com.sonarous.player.Text
 import com.sonarous.player.Visualizer
-import com.sonarous.player.components.PlayerService
-import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.ui.theme.dotoFamily
 import java.lang.Thread.sleep
 
@@ -1034,7 +1035,7 @@ fun SpeedPitchSlider(viewModel: PlayerViewModel, sliderColumnWidth: Float, slide
                 SettingsSliderTrack(viewModel)
             },
         )
-        _root_ide_package_.com.sonarous.player.LargeText(
+        LargeText(
             "%.2f".format(
                 if (type == "Speed") {
                     viewModel.audioEffectSpeed

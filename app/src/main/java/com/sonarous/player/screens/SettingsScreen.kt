@@ -60,13 +60,13 @@ import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import com.sonarous.player.BackButtonRow
 import com.sonarous.player.LargeText
-import com.sonarous.player.Text
+import com.sonarous.player.NavHostBackButtonRow
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SettingsData
 import com.sonarous.player.SettingsManager
+import com.sonarous.player.Text
 import com.sonarous.player.increaseBrightness
 import com.sonarous.player.ui.theme.shareTechFont
 
@@ -83,7 +83,7 @@ fun Settings(navController: NavController, viewModel: PlayerViewModel) {
         horizontalAlignment = Alignment.Start,
     ) {
         // Top bar
-        BackButtonRow(viewModel, navController, "Settings")
+        NavHostBackButtonRow(viewModel, navController, "Settings")
         Spacer(Modifier.height(15.dp))
         LazyColumn(
             modifier = Modifier

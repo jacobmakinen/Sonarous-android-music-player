@@ -10,10 +10,8 @@ import androidx.collection.intListOf
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -66,6 +63,7 @@ import com.sonarous.player.components.PlayerService
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.screens.AlbumScreen
 import com.sonarous.player.screens.AlbumSongsScreen
+import com.sonarous.player.screens.ArtistScreen
 import com.sonarous.player.screens.HorizontalColorPicker
 import com.sonarous.player.screens.HorizontalThemeChange
 import com.sonarous.player.screens.InfoScreen
@@ -151,21 +149,20 @@ fun Pager(
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
-        initialPage = 1
-    ) {
-        4
-    }
+        initialPage = 1,
+    ) { 5 }
     val selectedTab = remember { derivedStateOf { pagerState.currentPage } }
     val iconList = intListOf(
         R.drawable.play_arrow, R.drawable.outline_play_arrow, R.drawable.library_music,
         R.drawable.outline_library_music, R.drawable.album, R.drawable.outline_album,
+        R.drawable.artist, R.drawable.artist_outline
     )
 
     viewModel.songsScreenLazyColumnState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,
     )
-    val fetchStrategy = LazyListPrefetchStrategy(50)
+    val fetchStrategy = LazyListPrefetchStrategy(50) // May not be helpful  ¯\(`_`)/¯
     viewModel.queuedSongsLazyColumnState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,
@@ -187,7 +184,7 @@ fun Pager(
             context
         )
     } else {
-        HorizontalTabRow(
+        LandscapeTabRow(
             mediaController, spectrumAnalyzer,
             viewModel, songInfo,
             albumInfo, navController,
@@ -202,7 +199,7 @@ fun Pager(
 @ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
 @Composable
-fun HorizontalTabRow(
+fun LandscapeTabRow(
     mediaController: MediaController?,
     spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
@@ -266,7 +263,7 @@ fun HorizontalTabRow(
                     selectedContentColor = viewModel.iconColor,
                     unselectedContentColor = viewModel.iconColor,
                 )
-                for (i in 1..3) {
+                for (i in 1..4) {
                     Tab(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -351,6 +348,7 @@ fun HorizontalTabRow(
                 1 -> PlayerScreen(mediaController, spectrumAnalyzer, viewModel, songInfo)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController, 6)
+                4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
             }
         }
     }
@@ -422,7 +420,7 @@ fun PortraitTabRow(
                     selectedContentColor = viewModel.iconColor,
                     unselectedContentColor = viewModel.iconColor,
                 )
-                for (i in 1..3) {
+                for (i in 1..4) {
                     Tab(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -507,13 +505,14 @@ fun PortraitTabRow(
                 1 -> PlayerScreen(mediaController, spectrumAnalyzer, viewModel, songInfo)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
+                4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
             }
         }
     }
 }
 
 @Composable
-fun BackButtonRow(viewModel: PlayerViewModel, navController: NavController, title: String) {
+fun NavHostBackButtonRow(viewModel: PlayerViewModel, navController: NavController, title: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

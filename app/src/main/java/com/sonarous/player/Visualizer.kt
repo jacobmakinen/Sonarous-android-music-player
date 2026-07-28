@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -39,12 +40,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.sonarous.player.components.PlayerService
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.ui.theme.dotoFamily
 import com.sonarous.player.ui.theme.orbitronFamily
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.log
+import kotlin.math.pow
 
 @OptIn(UnstableApi::class)
 @Composable

@@ -42,7 +42,7 @@ class PlayerService : MediaSessionService() {
 
     object AudioVisualizerProcessor : AudioProcessor {
         private val _visualizerStateFlow = MutableStateFlow(
-            VisualiserData(doubleArrayOf(), 0.0, 1000L)
+            VisualiserData(doubleArrayOf(), 0.0)
         )
         val visualizerStateFlow: StateFlow<VisualiserData> = _visualizerStateFlow.asStateFlow()
         var speed = 1f
@@ -142,7 +142,7 @@ class PlayerService : MediaSessionService() {
                 emissionScope.launch {
                     delay(500)
                     _visualizerStateFlow.emit(
-                        VisualiserData(capturedVisualizerList, capturedVolume, 500)
+                        VisualiserData(capturedVisualizerList, capturedVolume)
                     )
                 }
             }

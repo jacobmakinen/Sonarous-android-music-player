@@ -38,10 +38,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.navigation.NavController
 import com.sonarous.player.LargeText
-import com.sonarous.player.Text
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
+import com.sonarous.player.Text
 
 @ExperimentalFoundationApi
 @OptIn(ExperimentalMaterial3Api::class)

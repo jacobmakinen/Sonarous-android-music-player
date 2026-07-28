@@ -24,7 +24,7 @@ import com.sonarous.player.ui.theme.LcdBlueWhite
 import com.sonarous.player.ui.theme.LcdGrey
 import org.jaudiotagger.tag.FieldKey
 
-class PlayerViewModel() : ViewModel() {
+class PlayerViewModel : ViewModel() {
     //========================= Media info =========================
     var duration by mutableFloatStateOf(0f) // Length of song
         private set

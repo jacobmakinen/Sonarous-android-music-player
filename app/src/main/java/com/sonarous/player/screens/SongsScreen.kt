@@ -1,7 +1,6 @@
 package com.sonarous.player.screens
 
 import android.content.Context
-import android.os.FileObserver
 import androidx.annotation.OptIn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,7 +28,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,14 +51,15 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.sonarous.player.LargeText
-import com.sonarous.player.Text
-import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
+import com.sonarous.player.Text
+import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.increaseBrightness
 import kotlinx.coroutines.launch
 
@@ -254,12 +253,11 @@ fun ScrollBar(columnState: LazyListState, viewModel: PlayerViewModel, lazyColumn
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     detectVerticalDragGestures { pointerChange, value ->
-                        val initialLocale = tabOffset
                         val yDelta = pointerChange.position.y
                         scope.launch {
                             columnState.scrollBy(
                                 // Percentage change in position * total lazy column size in px
-                                (yDelta - initialLocale.value) / scrollBarHeight * (columnState.layoutInfo.viewportSize.height.toFloat() * (columnState.layoutInfo.totalItemsCount.toFloat() / itemsPerViewport))
+                                (yDelta - tabOffset.value) / scrollBarHeight * (columnState.layoutInfo.viewportSize.height.toFloat() * (columnState.layoutInfo.totalItemsCount.toFloat() / itemsPerViewport))
                             )
                         }
                     }
