@@ -123,7 +123,7 @@ fun PortraitOrientation(
         )
         PlayingMediaInfo(viewModel)
         PlaybackControls(mediaController, viewModel)
-        if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_SEVERE) {
+        if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_EMERGENCY) {
             ThermalVisualizerWarning(viewModel)
         } else if (viewModel.showVisualizer) {
             Visualizer(audioProcessor, viewModel)

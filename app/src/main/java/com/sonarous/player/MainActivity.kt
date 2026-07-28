@@ -235,9 +235,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     LaunchedEffect(viewModel.thermalStatus) {
-                        if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_SEVERE) {
+                        if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_EMERGENCY) {
                             audioProcessor.visualiserIsOn = false
-                        } else if (viewModel.thermalStatus <= PowerManager.THERMAL_STATUS_MODERATE) {
+                        } else if (viewModel.thermalStatus <= PowerManager.THERMAL_STATUS_SEVERE) {
                             // TODO - Should check to see if user wants visualizer hidden
                             audioProcessor.visualiserIsOn = true
                         }
