@@ -1,4 +1,4 @@
-package com.sonarous.player
+package com.sonarous.player.components
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -6,7 +6,7 @@ import android.app.NotificationManager
 import androidx.media3.common.util.UnstableApi
 
 @UnstableApi
-class MusicApp: Application() {
+class PlayerApp: Application() {
     override fun onCreate() {
         super.onCreate()
         val channel = NotificationChannel(
