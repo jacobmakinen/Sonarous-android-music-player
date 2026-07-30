@@ -3,6 +3,7 @@ package com.sonarous.player.screens
 import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,14 +22,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
@@ -37,6 +41,8 @@ import com.sonarous.player.BackButtonRow
 import com.sonarous.player.SongInfo
 import com.sonarous.player.Text
 import com.sonarous.player.components.PlayerViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun ArtistScreen(
@@ -149,34 +155,61 @@ fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,
     )
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(viewModel.backgroundColor)
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .windowInsetsPadding(WindowInsets.navigationBars),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        LazyColumn(
+
+    val searchText = remember { mutableStateOf("") }
+    val searchedArtists = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(searchText.value) {
+        this.launch(Dispatchers.Default) {
+            searchedArtists.removeAll { true }
+            searchedArtists.addAll(Search.searchArtists(artists, searchText.value))
+        }
+    }
+
+    Column {
+        if (viewModel.showSearchBar) {
+            SearchBar(
+                searchText,
+                Modifier
+                    .padding(5.dp)
+                    .border(0.dp, Color.White)
+                    .padding(start = 10.dp),
+                Color(0x00000000)
+            )
+        } else {
+            searchText.value = ""
+        }
+        Row(
             modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(0.955f)
-                .padding(5.dp),
-            state = lazyColumnState
+                .fillMaxSize()
+                .background(viewModel.backgroundColor)
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .windowInsetsPadding(WindowInsets.navigationBars),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Start
         ) {
-            items(artists) { name ->
-                TitleRowButton(name, viewModel) {
-                    selectedArtist.value = name
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(0.955f)
+                    .padding(5.dp),
+                state = lazyColumnState
+            ) {
+                items(
+                    ( if (searchText.value == "") artists else searchedArtists)
+                ) { name ->
+                    TitleRowButton(name, viewModel) {
+                        selectedArtist.value = name
+                    }
                 }
             }
+            ScrollBar(
+                lazyColumnState,
+                viewModel,
+                ( if (searchText.value == "") artists.size else searchedArtists.size).toFloat(),
+                ( if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) 14f else 6f )
+            )
         }
-        ScrollBar(
-            lazyColumnState,
-            viewModel,
-            artists.size.toFloat(),
-            (if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) 14f else 6f)
-        )
     }
 }
 

@@ -70,7 +70,6 @@ import com.sonarous.player.screens.InfoScreen
 import com.sonarous.player.screens.PlayerScreen
 import com.sonarous.player.screens.PortraitColorPicker
 import com.sonarous.player.screens.PortraitThemeChange
-import com.sonarous.player.screens.SearchScreen
 import com.sonarous.player.screens.Settings
 import com.sonarous.player.screens.SongQueue
 import com.sonarous.player.screens.SongsScreen
@@ -371,7 +370,6 @@ fun LandscapeTabRow(
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController, 6)
                 4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
-//                5 -> SearchScreen(viewModel, songInfo, mediaController, pagerState, context, navController)
             }
         }
     }
@@ -548,7 +546,6 @@ fun PortraitTabRow(
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
                 4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
-//                5 -> SearchScreen(viewModel, songInfo, mediaController, pagerState, context, navController)
             }
         }
     }
