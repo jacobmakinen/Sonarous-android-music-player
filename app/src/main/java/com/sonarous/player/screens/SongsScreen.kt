@@ -68,6 +68,8 @@ import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.increaseBrightness
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.collections.listOf
+import kotlin.concurrent.thread
 
 @ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
@@ -109,12 +111,11 @@ fun SongsScreen(
     }
 
     val searchText = remember { mutableStateOf("") }
-    val searchedSongs = remember { mutableStateListOf<SongInfo>() }
+    var searchedSongs by remember { mutableStateOf<List<SongInfo>>(listOf()) }
 
     LaunchedEffect(searchText.value) {
         this.launch(Dispatchers.Default) {
-            searchedSongs.removeAll { true }
-            searchedSongs.addAll(Search.searchSongs(songInfo, searchText.value))
+            searchedSongs = Search.searchSongs(songInfo, searchText.value)
         }
     }
 

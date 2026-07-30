@@ -80,8 +80,6 @@ fun SearchBar(searchText: MutableState<String>, modifier: Modifier = Modifier, b
     ) {
         var inputText by remember { mutableStateOf("") }
 
-//        Spacer(Modifier.width(5.dp))
-
         Icon(
             modifier = Modifier.size(25.dp),
             painter = painterResource(R.drawable.search),
@@ -107,7 +105,6 @@ fun SearchBar(searchText: MutableState<String>, modifier: Modifier = Modifier, b
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
-//                        .padding(2.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Bottom
                 ) {

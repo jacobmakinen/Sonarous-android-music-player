@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -157,12 +158,11 @@ fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist
     )
 
     val searchText = remember { mutableStateOf("") }
-    val searchedArtists = remember { mutableStateListOf<String>() }
+    var searchedArtists by remember { mutableStateOf<List<String>>(listOf()) }
 
     LaunchedEffect(searchText.value) {
         this.launch(Dispatchers.Default) {
-            searchedArtists.removeAll { true }
-            searchedArtists.addAll(Search.searchArtists(artists, searchText.value))
+            searchedArtists = Search.searchArtists(artists, searchText.value)
         }
     }
 

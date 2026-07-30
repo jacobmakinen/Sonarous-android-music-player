@@ -3,6 +3,7 @@ package com.sonarous.player.screens
 import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -179,13 +180,13 @@ fun HorizontalThemeChange(viewModel: PlayerViewModel, navController: NavControll
                 .height(10.dp)
         )
         // To choose the colors for UI
-        ColourListDropDownMenu("background", "background", viewModel, tmpColorSettings, viewModel.backgroundColor)
-        ColourOtherListDropDownMenu("text", "text", viewModel, tmpColorSettings, viewModel.textColor)
-        ColourOtherListDropDownMenu("icon", "icon", viewModel, tmpColorSettings, viewModel.iconColor)
-        ColourOtherListDropDownMenu("equaliser's level","eqLevel", viewModel, tmpColorSettings, viewModel.visualizerLevelColor)
-        ColourListDropDownMenu("equaliser's text","eqText", viewModel, tmpColorSettings, viewModel.visualizerTextColor)
-        ColourListDropDownMenu("seek bar's thumb","sliderThumb", viewModel, tmpColorSettings, viewModel.sliderThumbColor)
-        ColourListDropDownMenu("seek bar's track","sliderTrack", viewModel, tmpColorSettings, viewModel.sliderTrackColor)
+        ColourListDropDownMenu("Background", "background", viewModel, tmpColorSettings, viewModel.backgroundColor)
+        ColourOtherListDropDownMenu("Text", "text", viewModel, tmpColorSettings, viewModel.textColor)
+        ColourOtherListDropDownMenu("Icon", "icon", viewModel, tmpColorSettings, viewModel.iconColor)
+        ColourOtherListDropDownMenu("Visualizer level","eqLevel", viewModel, tmpColorSettings, viewModel.visualizerLevelColor)
+        ColourListDropDownMenu("Visualizer text","eqText", viewModel, tmpColorSettings, viewModel.visualizerTextColor)
+        ColourListDropDownMenu("Seek bar thumb","sliderThumb", viewModel, tmpColorSettings, viewModel.sliderThumbColor)
+        ColourListDropDownMenu("Seek bar track","sliderTrack", viewModel, tmpColorSettings, viewModel.sliderTrackColor)
         VisualizerVisibilitySwitch(viewModel, tmpMiscSettings)
         // Customisation buttons
         Row(
@@ -264,13 +265,13 @@ fun PortraitThemeChange(viewModel: PlayerViewModel, navController: NavController
                 .height(10.dp)
         )
         // To choose the colors for UI
-        ColourListDropDownMenu("background", "background", viewModel, tmpColorSettings, viewModel.backgroundColor)
-        ColourOtherListDropDownMenu("text", "text", viewModel, tmpColorSettings, viewModel.textColor)
-        ColourOtherListDropDownMenu("icon", "icon", viewModel, tmpColorSettings, viewModel.iconColor)
-        ColourOtherListDropDownMenu("equaliser's level","eqLevel", viewModel, tmpColorSettings, viewModel.visualizerLevelColor)
-        ColourListDropDownMenu("equaliser's text","eqText", viewModel, tmpColorSettings, viewModel.visualizerTextColor)
-        ColourListDropDownMenu("seek bar's thumb","sliderThumb", viewModel, tmpColorSettings, viewModel.sliderThumbColor)
-        ColourListDropDownMenu("seek bar's track","sliderTrack", viewModel, tmpColorSettings, viewModel.sliderTrackColor)
+        ColourListDropDownMenu("Background", "background", viewModel, tmpColorSettings, viewModel.backgroundColor)
+        ColourOtherListDropDownMenu("Text", "text", viewModel, tmpColorSettings, viewModel.textColor)
+        ColourOtherListDropDownMenu("Icon", "icon", viewModel, tmpColorSettings, viewModel.iconColor)
+        ColourOtherListDropDownMenu("Visualizer level","eqLevel", viewModel, tmpColorSettings, viewModel.visualizerLevelColor)
+        ColourListDropDownMenu("Visualizer text","eqText", viewModel, tmpColorSettings, viewModel.visualizerTextColor)
+        ColourListDropDownMenu("Seek bar thumb","sliderThumb", viewModel, tmpColorSettings, viewModel.sliderThumbColor)
+        ColourListDropDownMenu("Seek bar track","sliderTrack", viewModel, tmpColorSettings, viewModel.sliderTrackColor)
         VisualizerVisibilitySwitch(viewModel, tmpMiscSettings)
         // Customisation buttons
         Row(
@@ -305,7 +306,7 @@ fun VisualizerVisibilitySwitch(viewModel: PlayerViewModel, tmpMiscSettings: Muta
     ) {
         var switched by remember { mutableStateOf(viewModel.showVisualizer) }
         Text(
-            "Switch visualizer on / off",
+            "Switch visualizer on/off",
             viewModel = viewModel
         )
         Switch(
@@ -331,7 +332,10 @@ fun VisualizerVisibilitySwitch(viewModel: PlayerViewModel, tmpMiscSettings: Muta
 @Composable
 fun ResetToDefaultsButton(viewModel: PlayerViewModel, context: Context) {
     Button(
-        modifier = Modifier.padding(horizontal = 5.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 5.dp)
+            .border(0.dp, viewModel.iconColor),
         onClick = {
             val settingsManager = SettingsManager(context)
             val defaultData = SettingsData(
@@ -353,8 +357,8 @@ fun ResetToDefaultsButton(viewModel: PlayerViewModel, context: Context) {
         )
     ) {
         Text(
-            "Reset to defaults",
-            viewModel = viewModel
+            "Reset",
+            viewModel = viewModel,
         )
     }
 }
@@ -364,7 +368,9 @@ fun CustomColorButton(
     navController: NavController,
 ) {
     Button(
-        modifier = Modifier.padding(horizontal = 5.dp),
+        modifier = Modifier
+            .padding(horizontal = 5.dp)
+            .border(0.dp, viewModel.iconColor),
         onClick = {
             navController.navigate("color_picker")
         },
@@ -388,7 +394,8 @@ fun SaveChangesButton(
 ) {
     Button(
         modifier = Modifier
-            .padding(horizontal = 5.dp),
+            .padding(horizontal = 5.dp)
+            .border(0.dp, viewModel.iconColor),
         onClick = {
             for (i in tmpColorSettings.keys) {
                 if (tmpColorSettings[i] != null) {
@@ -450,14 +457,14 @@ fun ColourListDropDownMenu(
         var expanded by remember { mutableStateOf(false) }
         var selectedText by remember { mutableStateOf(getKeyOfColorMap(currentColor, viewModel)) }
         Text(
-            "Change $name colour: ",
+            "$name colour: ",
             viewModel = viewModel
         )
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
             modifier = Modifier
-                .width(140.dp),
+                .width(155.dp),
         ) {
             TextField(
                 modifier = Modifier
@@ -465,7 +472,7 @@ fun ColourListDropDownMenu(
                         type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
                         enabled = true
                     ),
-                value = selectedText.uppercase(),
+                value = selectedText,
                 onValueChange = {  },
                 readOnly = true,
                 trailingIcon = {
@@ -543,7 +550,7 @@ fun ColourOtherListDropDownMenu(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp)
+            .height(80.dp)
             .padding(vertical = 5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -551,14 +558,15 @@ fun ColourOtherListDropDownMenu(
         var expanded by remember { mutableStateOf(false) }
         var selectedText by remember { mutableStateOf(getKeyOfOtherColorMap(currentColor,viewModel)) }
         Text(
-            "Change $name colour: ",
+            "$name colour: ",
             viewModel = viewModel
         )
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
             modifier = Modifier
-                .width(140.dp)
+                .width(155.dp)
+                .fillMaxHeight(0.9f)
         ) {
             TextField(
                 modifier = Modifier

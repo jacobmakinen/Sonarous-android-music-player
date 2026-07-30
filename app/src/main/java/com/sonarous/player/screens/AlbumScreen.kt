@@ -20,11 +20,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,7 +51,7 @@ fun AlbumScreen(
     elementsPerRow: Int = 3,
 ) {
     val searchText = remember { mutableStateOf("") }
-    val searchedAlbums = remember { mutableStateListOf<AlbumInfo>() }
+    var searchedAlbums by remember { mutableStateOf<List<AlbumInfo>>(listOf()) }
 
     val rowNumbers = if (searchText.value == "") {
         if (albumInfo.count() % elementsPerRow != 0) {
@@ -66,9 +69,8 @@ fun AlbumScreen(
 
 
     LaunchedEffect(searchText.value) {
-        this.launch(Dispatchers.Main) {
-            searchedAlbums.removeAll { true }
-            searchedAlbums.addAll(Search.searchAlbums(albumInfo, searchText.value))
+        this.launch(Dispatchers.Default) {
+            searchedAlbums = Search.searchAlbums(albumInfo, searchText.value)
         }
     }
 
