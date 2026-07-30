@@ -96,16 +96,16 @@ fun PlayerScreen(
     songInfo: List<SongInfo>
 ) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
-        PortraitOrientation(mediaController, audioProcessor, viewModel, songInfo)
+        PortraitPlayer(mediaController, audioProcessor, viewModel, songInfo)
     } else {
-        HorizontalOrientation(mediaController, audioProcessor, viewModel, songInfo)
+        HorizontalPlayer(mediaController, audioProcessor, viewModel, songInfo)
     }
 }
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @UnstableApi
 @Composable
-fun PortraitOrientation(
+fun PortraitPlayer(
     mediaController: MediaController?,
     audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
@@ -261,7 +261,7 @@ fun ThermalDotoText(text: String, modifier: Modifier = Modifier, color: Color) {
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @UnstableApi
 @Composable
-fun HorizontalOrientation(
+fun HorizontalPlayer(
     mediaController: MediaController?,
     audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,

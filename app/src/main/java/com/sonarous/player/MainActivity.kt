@@ -219,7 +219,7 @@ class MainActivity : ComponentActivity() {
                     if (viewModel.isPlaying) {
                         LaunchedEffect(Unit) {
                             while (true) {
-                                mediaController.let { viewModel.updateCurrentSongPosition(it.currentPosition) }
+                                viewModel.updateCurrentSongPosition(mediaController.currentPosition)
                                 delay(1.seconds / 30)
                             }
                         }

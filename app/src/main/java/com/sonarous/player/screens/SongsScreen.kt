@@ -6,6 +6,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
@@ -33,9 +34,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -45,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -61,6 +66,7 @@ import com.sonarous.player.SongInfo
 import com.sonarous.player.Text
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.increaseBrightness
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @ExperimentalFoundationApi
@@ -101,29 +107,65 @@ fun SongsScreen(
             viewModel.playingFromSongsScreen = true
         }
     }
+
+    val searchText = remember { mutableStateOf("") }
+    val searchedSongs = remember { mutableStateListOf<SongInfo>() }
+
+    LaunchedEffect(searchText.value) {
+        this.launch(Dispatchers.Default) {
+            searchedSongs.removeAll { true }
+            searchedSongs.addAll(Search(searchText.value, songInfo).searchSongs()) // WARNING -- change artist and album creation
+        }
+    }
+
     Box {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(viewModel.backgroundColor)
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .windowInsetsPadding(WindowInsets.navigationBars),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.955f),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                state = viewModel.songsScreenLazyColumnState,
-            ) {
-                items(lazyColumnSize) { i ->
-                    SongRow(songInfo[i], viewModel, i, playSongCallback)
-                }
+        Column {
+            if (viewModel.showSearchBar) {
+                SearchBar(
+                    searchText,
+                    Modifier
+                        .padding(5.dp)
+                        .border(0.dp, Color.White)
+                        .padding(start = 10.dp),
+                    Color(0x00000000)
+                )
+            } else {
+                searchText.value = ""
             }
-            ScrollBar(viewModel.songsScreenLazyColumnState, viewModel, lazyColumnSize.toFloat())
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(viewModel.backgroundColor)
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .windowInsetsPadding(WindowInsets.navigationBars),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.955f),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start,
+                    state = viewModel.songsScreenLazyColumnState,
+                ) {
+                    items(
+                        (if (searchText.value == "") songInfo.size else searchedSongs.size)
+                    ) { i ->
+                        SongRow(
+                            (if (searchText.value == "") songInfo[i] else searchedSongs[i]),
+                            viewModel,
+                            i,
+                            playSongCallback
+                        )
+                    }
+                }
+                ScrollBar(
+                    viewModel.songsScreenLazyColumnState,
+                    viewModel,
+                    (if (searchText.value == "") songInfo.size.toFloat() else searchedSongs.size.toFloat())
+                )
+            }
         }
         if (viewModel.showMoreSongOptions) {
             MoreSongOptions(viewModel, mediaController, context)

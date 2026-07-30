@@ -88,6 +88,7 @@ class PlayerViewModel : ViewModel() {
     lateinit var queuedSongsLazyColumnState: LazyListState
     lateinit var albumScreenLazyColumnState: LazyListState
     var thermalStatus by mutableIntStateOf(0)
+    var showSearchBar by mutableStateOf(false)
     //========================= More options screen =========================//
     var showMoreSongOptions by mutableStateOf(false)
     var replicatedAlbumArt: Bitmap? = null

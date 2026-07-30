@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -32,7 +30,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
@@ -97,51 +94,49 @@ fun ArtistSongs(
             viewModel.playingFromSongsScreen = true
         }
     }
-    Box {
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        BackButtonRow(viewModel, text = artist.value) {
+            artist.value = null
+        }
+        Row(
             modifier = Modifier
                 .fillMaxSize()
+                .background(viewModel.backgroundColor)
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .windowInsetsPadding(WindowInsets.navigationBars),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Start
         ) {
-            BackButtonRow(viewModel, text = artist.value) {
-                artist.value = null
-            }
-            Row(
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(viewModel.backgroundColor)
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .windowInsetsPadding(WindowInsets.navigationBars),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.Start
+                    .fillMaxHeight()
+                    .fillMaxWidth(0.955f),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start,
+                state = viewModel.songsScreenLazyColumnState,
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(0.955f),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.Start,
-                    state = viewModel.songsScreenLazyColumnState,
-                ) {
-                    items(artistSongs.size) { i ->
-                        SongRow(artistSongs[i], viewModel, i, playSongCallback)
-                    }
+                items(artistSongs.size) { i ->
+                    SongRow(artistSongs[i], viewModel, i, playSongCallback)
                 }
-                ScrollBar(
-                    viewModel.songsScreenLazyColumnState,
-                    viewModel,
-                    artistSongs.size.toFloat(),
-                    (
-                            if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                                8.5f
-                            } else {
-                                3.25f
-                            }
-                            )
-                )
             }
-            if (viewModel.showMoreSongOptions) {
-                MoreSongOptions(viewModel, mediaController, context)
-            }
+            ScrollBar(
+                viewModel.songsScreenLazyColumnState,
+                viewModel,
+                artistSongs.size.toFloat(),
+                (
+                        if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                            8.5f
+                        } else {
+                            3.25f
+                        }
+                        )
+            )
+        }
+        if (viewModel.showMoreSongOptions) {
+            MoreSongOptions(viewModel, mediaController, context)
         }
     }
 }
@@ -171,7 +166,7 @@ fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist
             state = lazyColumnState
         ) {
             items(artists) { name ->
-                Artist(name, viewModel) {
+                TitleRowButton(name, viewModel) {
                     selectedArtist.value = name
                 }
             }
@@ -186,7 +181,7 @@ fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist
 }
 
 @Composable
-fun Artist(name: String, viewModel: PlayerViewModel, onClick: () -> Unit) {
+fun TitleRowButton(name: String, viewModel: PlayerViewModel, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

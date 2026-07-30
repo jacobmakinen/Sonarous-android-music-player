@@ -70,6 +70,7 @@ import com.sonarous.player.screens.InfoScreen
 import com.sonarous.player.screens.PlayerScreen
 import com.sonarous.player.screens.PortraitColorPicker
 import com.sonarous.player.screens.PortraitThemeChange
+import com.sonarous.player.screens.SearchScreen
 import com.sonarous.player.screens.Settings
 import com.sonarous.player.screens.SongQueue
 import com.sonarous.player.screens.SongsScreen
@@ -151,6 +152,7 @@ fun Pager(
     val pagerState = rememberPagerState(
         initialPage = 1,
     ) { 5 }
+//    ) { 6 }
     val selectedTab = remember { derivedStateOf { pagerState.currentPage } }
     val iconList = intListOf(
         R.drawable.play_arrow, R.drawable.outline_play_arrow, R.drawable.library_music,
@@ -290,6 +292,26 @@ fun LandscapeTabRow(
                         unselectedContentColor = viewModel.iconColor,
                     )
                 }
+                // Search
+                Tab(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    selected = viewModel.showSearchBar,
+                    onClick = {
+                        viewModel.showSearchBar = !viewModel.showSearchBar
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.search),
+                            contentDescription = null
+                        )
+                    },
+                    selectedContentColor = viewModel.iconColor,
+                    unselectedContentColor = viewModel.iconColor,
+                )
+
+
+                // More options
                 var dropDownMenu by remember { mutableStateOf(false) }
                 Tab( // More options menu
                     modifier = Modifier
@@ -349,6 +371,7 @@ fun LandscapeTabRow(
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController, 6)
                 4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
+//                5 -> SearchScreen(viewModel, songInfo, mediaController, pagerState, context, navController)
             }
         }
     }
@@ -447,6 +470,25 @@ fun PortraitTabRow(
                         unselectedContentColor = viewModel.iconColor,
                     )
                 }
+                // Search
+                Tab(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    selected = viewModel.showSearchBar,
+                    onClick = {
+                        viewModel.showSearchBar = !viewModel.showSearchBar
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.search),
+                            contentDescription = null
+                        )
+                    },
+                    selectedContentColor = viewModel.iconColor,
+                    unselectedContentColor = viewModel.iconColor,
+                )
+
+                // More options
                 var dropDownMenu by remember { mutableStateOf(false) }
                 Tab( // More options menu
                     modifier = Modifier
@@ -506,6 +548,7 @@ fun PortraitTabRow(
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
                 4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
+//                5 -> SearchScreen(viewModel, songInfo, mediaController, pagerState, context, navController)
             }
         }
     }
