@@ -114,7 +114,7 @@ fun SongsScreen(
     LaunchedEffect(searchText.value) {
         this.launch(Dispatchers.Default) {
             searchedSongs.removeAll { true }
-            searchedSongs.addAll(Search(searchText.value, songInfo).searchSongs()) // WARNING -- change artist and album creation
+            searchedSongs.addAll(Search.searchSongs(songInfo, searchText.value))
         }
     }
 

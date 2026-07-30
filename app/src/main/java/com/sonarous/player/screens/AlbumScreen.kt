@@ -1,6 +1,5 @@
 package com.sonarous.player.screens
 
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -69,7 +68,7 @@ fun AlbumScreen(
     LaunchedEffect(searchText.value) {
         this.launch(Dispatchers.Main) {
             searchedAlbums.removeAll { true }
-            searchedAlbums.addAll(searchAlbums(albumInfo, searchText.value))
+            searchedAlbums.addAll(Search.searchAlbums(albumInfo, searchText.value))
         }
     }
 
@@ -146,15 +145,6 @@ fun AlbumScreen(
 //    }
 //    return albums.subList(lowerI, upperI + 1) // Exclusive upper bound
 //}
-
-fun searchAlbums(albums: List<AlbumInfo>, searchText: String): List<AlbumInfo> {
-    val regex = buildSearchRegEx(searchText)
-    val searchedAlbums = mutableListOf<AlbumInfo>()
-    for (album in albums) {
-        if (album.albumName.lowercase().matches(regex)) searchedAlbums.add(album)
-    }
-    return searchedAlbums
-}
 
 @Composable
 fun AlbumRow(
