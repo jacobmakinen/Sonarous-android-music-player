@@ -54,130 +54,130 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.collections.binarySearch
 
-@Composable
-fun SearchScreen(
-    viewModel: PlayerViewModel,
-    songInfo: List<SongInfo>,
-    mediaController: MediaController?,
-    pagerState: PagerState,
-    context: Context,
-    navController: NavController
-) {
-    // Ensure that any previous "viewModel.selectedAlbum" is cleared >keyed> to deal with recomp
-    key(Unit) { viewModel.selectedAlbum = "" }
-
-    val selectedArtist = remember { mutableStateOf<String?>(null) }
-
-    when {
-        selectedArtist.value == null && viewModel.selectedAlbum == "" -> SearchList(viewModel, songInfo, mediaController, pagerState, selectedArtist)
-        selectedArtist.value != null && viewModel.selectedAlbum == "" -> ArtistSongs(selectedArtist, songInfo, viewModel, mediaController, pagerState, context)
-        viewModel.selectedAlbum != "" && selectedArtist.value == null -> navController.navigate("album_songs_screen")
-    }
-}
-
-@Composable
-fun SearchList(
-    viewModel: PlayerViewModel,
-    songInfo: List<SongInfo>,
-    mediaController: MediaController?,
-    pagerState: PagerState,
-    selectedArtist: MutableState<String?>,
-) {
-    val lazyListState = rememberLazyListState(
-        initialFirstVisibleItemIndex = 0,
-        initialFirstVisibleItemScrollOffset = 0,
-    )
-
-    var searchedData by remember { mutableStateOf<Map<String, List<Any>>>(mapOf()) }
-    val searchText = remember { mutableStateOf("") }
-
-    val playSongCallback = remember {
-        { i: Int ->
-            viewModel.queueingSongs = false
-            viewModel.shuffleMode = false
-
-            val song = searchedData["songs"]!![i] as SongInfo
-
-            mediaController?.clearMediaItems()
-            mediaController?.addMediaItem(MediaItem.fromUri(song.songUri))
-            mediaController?.prepare()
-            mediaController?.seekTo(i, 0L)
-            mediaController?.play()
-
-            pagerState.requestScrollToPage(1)
-            viewModel.queuedSongs = songInfo.toMutableStateList()
-            viewModel.updateSongDuration((songInfo[i].time).toLong())
-            viewModel.songIndex = i
-            viewModel.playingFromSongsScreen = true
-        }
-    }
-
-    LaunchedEffect(searchText.value) {
-        this.launch(Dispatchers.Default) {
-            searchedData = Search(searchText.value, songInfo).searchData()
-            if (searchedData["songs"]!!.isNotEmpty()) Log.d("SonarousLogs", "Final: ${searchedData["songs"]?.get(0)}")
-            if (searchedData["songs"]!!.isEmpty()) Log.d("SonarousLogs", "Empty")
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        SearchBar(searchText)
-        if (searchedData.isEmpty()) return
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(viewModel.backgroundColor)
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .windowInsetsPadding(WindowInsets.navigationBars),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Start,
-        ) {
-            LazyColumn(
-                Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.955f),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                state = lazyListState
-            ) {
-                // ------------- Songs ------------- //
-                if (searchedData["songs"] != null) {
-                    items(searchedData["songs"]!!.size) { i ->
-                        SongRow(searchedData["songs"]!![i] as SongInfo, viewModel, i, playSongCallback)
-                    }
-                }
-                // ------------- Albums ------------- //
-                if (searchedData["albums"] != null) {
-                    items(searchedData["albums"]!!.size) { i ->
-                        TitleRowButton(searchedData["albums"]!![i] as String, viewModel) {
-                            viewModel.selectedAlbum = searchedData["albums"]!![i] as String
-                        }
-                    }
-                }
-                // ------------- Artists ------------- //
-                if (searchedData["artists"] != null) {
-                    items(searchedData["artists"]!!.size) { i ->
-                        TitleRowButton(searchedData["artists"]!![i] as String, viewModel) {
-                            selectedArtist.value = searchedData["artists"]!![i] as String
-                        }
-                    }
-                }
-            }
-            ScrollBar(lazyListState, viewModel, getSearchedMapSize(searchedData).toFloat())
-        }
-    }
-}
-
-fun getSearchedMapSize(searchedData: Map<String, List<Any>>): Int {
-    return searchedData["songs"]?.size?.plus(
-        searchedData["albums"]?.size ?: 0
-    )?.plus(
-        searchedData["artists"]?.size ?: 0
-    ) ?: 0
-}
+//@Composable
+//fun SearchScreen(
+//    viewModel: PlayerViewModel,
+//    songInfo: List<SongInfo>,
+//    mediaController: MediaController?,
+//    pagerState: PagerState,
+//    context: Context,
+//    navController: NavController
+//) {
+//    // Ensure that any previous "viewModel.selectedAlbum" is cleared >keyed> to deal with recomp
+//    key(Unit) { viewModel.selectedAlbum = "" }
+//
+//    val selectedArtist = remember { mutableStateOf<String?>(null) }
+//
+//    when {
+//        selectedArtist.value == null && viewModel.selectedAlbum == "" -> SearchList(viewModel, songInfo, mediaController, pagerState, selectedArtist)
+//        selectedArtist.value != null && viewModel.selectedAlbum == "" -> ArtistSongs(selectedArtist, songInfo, viewModel, mediaController, pagerState, context)
+//        viewModel.selectedAlbum != "" && selectedArtist.value == null -> navController.navigate("album_songs_screen")
+//    }
+//}
+//
+//@Composable
+//fun SearchList(
+//    viewModel: PlayerViewModel,
+//    songInfo: List<SongInfo>,
+//    mediaController: MediaController?,
+//    pagerState: PagerState,
+//    selectedArtist: MutableState<String?>,
+//) {
+//    val lazyListState = rememberLazyListState(
+//        initialFirstVisibleItemIndex = 0,
+//        initialFirstVisibleItemScrollOffset = 0,
+//    )
+//
+//    var searchedData by remember { mutableStateOf<Map<String, List<Any>>>(mapOf()) }
+//    val searchText = remember { mutableStateOf("") }
+//
+//    val playSongCallback = remember {
+//        { i: Int ->
+//            viewModel.queueingSongs = false
+//            viewModel.shuffleMode = false
+//
+//            val song = searchedData["songs"]!![i] as SongInfo
+//
+//            mediaController?.clearMediaItems()
+//            mediaController?.addMediaItem(MediaItem.fromUri(song.songUri))
+//            mediaController?.prepare()
+//            mediaController?.seekTo(i, 0L)
+//            mediaController?.play()
+//
+//            pagerState.requestScrollToPage(1)
+//            viewModel.queuedSongs = songInfo.toMutableStateList()
+//            viewModel.updateSongDuration((songInfo[i].time).toLong())
+//            viewModel.songIndex = i
+//            viewModel.playingFromSongsScreen = true
+//        }
+//    }
+//
+//    LaunchedEffect(searchText.value) {
+//        this.launch(Dispatchers.Default) {
+//            searchedData = Search(searchText.value, songInfo).searchData()
+//            if (searchedData["songs"]!!.isNotEmpty()) Log.d("SonarousLogs", "Final: ${searchedData["songs"]?.get(0)}")
+//            if (searchedData["songs"]!!.isEmpty()) Log.d("SonarousLogs", "Empty")
+//        }
+//    }
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//    ) {
+//        SearchBar(searchText)
+//        if (searchedData.isEmpty()) return
+//        Row(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(viewModel.backgroundColor)
+//                .windowInsetsPadding(WindowInsets.statusBars)
+//                .windowInsetsPadding(WindowInsets.navigationBars),
+//            verticalAlignment = Alignment.Top,
+//            horizontalArrangement = Arrangement.Start,
+//        ) {
+//            LazyColumn(
+//                Modifier
+//                    .fillMaxHeight()
+//                    .fillMaxWidth(0.955f),
+//                verticalArrangement = Arrangement.Top,
+//                horizontalAlignment = Alignment.Start,
+//                state = lazyListState
+//            ) {
+//                // ------------- Songs ------------- //
+//                if (searchedData["songs"] != null) {
+//                    items(searchedData["songs"]!!.size) { i ->
+//                        SongRow(searchedData["songs"]!![i] as SongInfo, viewModel, i, playSongCallback)
+//                    }
+//                }
+//                // ------------- Albums ------------- //
+//                if (searchedData["albums"] != null) {
+//                    items(searchedData["albums"]!!.size) { i ->
+//                        TitleRowButton(searchedData["albums"]!![i] as String, viewModel) {
+//                            viewModel.selectedAlbum = searchedData["albums"]!![i] as String
+//                        }
+//                    }
+//                }
+//                // ------------- Artists ------------- //
+//                if (searchedData["artists"] != null) {
+//                    items(searchedData["artists"]!!.size) { i ->
+//                        TitleRowButton(searchedData["artists"]!![i] as String, viewModel) {
+//                            selectedArtist.value = searchedData["artists"]!![i] as String
+//                        }
+//                    }
+//                }
+//            }
+//            ScrollBar(lazyListState, viewModel, getSearchedMapSize(searchedData).toFloat())
+//        }
+//    }
+//}
+//
+//fun getSearchedMapSize(searchedData: Map<String, List<Any>>): Int {
+//    return searchedData["songs"]?.size?.plus(
+//        searchedData["albums"]?.size ?: 0
+//    )?.plus(
+//        searchedData["artists"]?.size ?: 0
+//    ) ?: 0
+//}
 
 class Search(
     val searchText: String,
@@ -190,14 +190,6 @@ class Search(
             if (song.album !in albums) albums.add(song.album)
             if (song.artist !in artists) artists.add(song.artist)
         }
-    }
-
-    suspend fun searchData(): Map<String, List<Any>> = withContext(Dispatchers.Default) {
-        return@withContext mapOf(
-            "songs" to searchSongs(),
-            "albums" to searchAlbums(),
-            "artists" to searchArtists()
-        )
     }
 
     fun searchSongs(): List<SongInfo> {
@@ -262,6 +254,14 @@ class Search(
         }
         return artists.subList(lowerI, upperI)
     }
+}
+
+fun buildSearchRegEx(searchText: String): Regex {
+    var pattern = ""
+    for (char in searchText) {
+        pattern += """${char.lowercase()}([a-zA-Z0-9]|\s|\p{P})*"""
+    }
+    return pattern.toRegex()
 }
 
 @Composable
