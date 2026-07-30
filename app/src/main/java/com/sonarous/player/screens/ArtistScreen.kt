@@ -85,8 +85,9 @@ fun ArtistSongs(
 
     val playSongCallback = remember {
         { i: Int ->
-            viewModel.queueingSongs = false
+            viewModel.queueingSongs = true
             viewModel.shuffleMode = false
+            viewModel.playingFromSongsScreen = false
 
             mediaController?.clearMediaItems()
             mediaController?.addMediaItems(mediaItemList)
@@ -95,10 +96,9 @@ fun ArtistSongs(
             mediaController?.play()
 
             pagerState.requestScrollToPage(1)
-            viewModel.queuedSongs = songInfo.toMutableStateList()
-            viewModel.updateSongDuration((songInfo[i].time).toLong())
+            viewModel.queuedSongs = artistSongs.toMutableStateList()
+            viewModel.updateSongDuration((artistSongs[i].time).toLong())
             viewModel.songIndex = i
-            viewModel.playingFromSongsScreen = true
         }
     }
     Column(
