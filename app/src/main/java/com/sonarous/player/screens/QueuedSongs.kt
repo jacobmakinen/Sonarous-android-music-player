@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -78,7 +76,7 @@ fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
                             onClick = {
                                 mediaController?.clearMediaItems()
                                 for (j in 0 until viewModel.queuedSongs.count()) {
-                                    mediaController?.addMediaItem(MediaItem.fromUri(viewModel.queuedSongs[j].songUri))
+                                    mediaController?.addMediaItem(MediaItem.fromUri(viewModel.queuedSongs[j].uri))
                                 }
                                 mediaController?.prepare()
                                 mediaController?.seekTo(i, 0L)

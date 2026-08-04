@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK && viewModel.replicatedAlbumArt != null) {
-                editSongAlbumArt(this,viewModel.moreOptionsSelectedSong.songUri, viewModel.replicatedAlbumArt!!, viewModel)
+                editSongAlbumArt(this,viewModel.moreOptionsSelectedSong.uri, viewModel.replicatedAlbumArt!!, viewModel)
             }
         }
 
@@ -137,7 +137,7 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK && viewModel.editSongTags != null) {
-                editSongTag(this,viewModel.moreOptionsSelectedSong.songUri, viewModel.editSongTags!!, viewModel)
+                editSongTag(this,viewModel.moreOptionsSelectedSong.uri, viewModel.editSongTags!!, viewModel)
             }
         }
 

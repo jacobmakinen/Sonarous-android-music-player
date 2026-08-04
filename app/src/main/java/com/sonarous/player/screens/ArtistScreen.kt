@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -26,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,7 +77,7 @@ fun ArtistSongs(
         derivedStateOf {
             val tmpList = mutableListOf<MediaItem>()
             for (song in artistSongs) {
-                tmpList.add(MediaItem.fromUri(song.songUri))
+                tmpList.add(MediaItem.fromUri(song.uri))
             }
             tmpList
         }
@@ -96,6 +96,7 @@ fun ArtistSongs(
             mediaController?.play()
 
             pagerState.requestScrollToPage(1)
+            viewModel.showSearchBar = false
             viewModel.queuedSongs = artistSongs.toMutableStateList()
             viewModel.updateSongDuration((artistSongs[i].time).toLong())
             viewModel.songIndex = i
@@ -108,42 +109,44 @@ fun ArtistSongs(
         BackButtonRow(viewModel, text = artist.value) {
             artist.value = null
         }
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(viewModel.backgroundColor)
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .windowInsetsPadding(WindowInsets.navigationBars),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            LazyColumn(
+        Box {
+            Row(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.955f),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                state = viewModel.songsScreenLazyColumnState,
+                    .fillMaxSize()
+                    .background(viewModel.backgroundColor)
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .windowInsetsPadding(WindowInsets.navigationBars),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Start
             ) {
-                items(artistSongs.size) { i ->
-                    SongRow(artistSongs[i], viewModel, i, playSongCallback)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.955f),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start,
+                    state = viewModel.songsScreenLazyColumnState,
+                ) {
+                    items(artistSongs.size) { i ->
+                        SongRow(artistSongs[i], viewModel, i, playSongCallback)
+                    }
                 }
+                ScrollBar(
+                    viewModel.songsScreenLazyColumnState,
+                    viewModel,
+                    artistSongs.size.toFloat(),
+                    (
+                            if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                                8.5f
+                            } else {
+                                3.25f
+                            }
+                            )
+                )
             }
-            ScrollBar(
-                viewModel.songsScreenLazyColumnState,
-                viewModel,
-                artistSongs.size.toFloat(),
-                (
-                        if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            8.5f
-                        } else {
-                            3.25f
-                        }
-                        )
-            )
-        }
-        if (viewModel.showMoreSongOptions) {
-            MoreSongOptions(viewModel, mediaController, context)
+            if (viewModel.showMoreSongOptions) {
+                MoreSongOptions(viewModel, mediaController, context)
+            }
         }
     }
 }

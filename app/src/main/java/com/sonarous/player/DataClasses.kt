@@ -1,7 +1,6 @@
 package com.sonarous.player
 
 import android.net.Uri
-import androidx.compose.runtime.MutableFloatState
 import androidx.compose.ui.graphics.ImageBitmap
 
 data class VisualiserData(
@@ -30,7 +29,7 @@ data class VisualiserData(
 data class SongInfo(
     val name: String,
     val fileName: String,
-    val songUri: Uri,
+    val uri: Uri,
     val time: Float,
     val artist: String,
     val album: String,

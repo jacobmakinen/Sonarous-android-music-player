@@ -632,7 +632,7 @@ fun ShuffleControls(mediaController: MediaController?, viewModel: PlayerViewMode
                     }
                     viewModel.shuffleSongInfo = tmpSongInfo
                     for (i in viewModel.shuffleSongInfo) {
-                        mediaController?.addMediaItem(MediaItem.fromUri(i.songUri))
+                        mediaController?.addMediaItem(MediaItem.fromUri(i.uri))
                     }
                 } else { // Playing from songs screen
                     val tmpShuffledSongInfo = songInfo.shuffled()
@@ -643,7 +643,7 @@ fun ShuffleControls(mediaController: MediaController?, viewModel: PlayerViewMode
                     }
                     viewModel.shuffleSongInfo = tmpSongInfo
                     for (i in viewModel.shuffleSongInfo) {
-                        mediaController?.addMediaItem(MediaItem.fromUri(i.songUri))
+                        mediaController?.addMediaItem(MediaItem.fromUri(i.uri))
                     }
                 }
                 viewModel.queuedSongs = viewModel.shuffleSongInfo.toMutableStateList()
@@ -657,12 +657,12 @@ fun ShuffleControls(mediaController: MediaController?, viewModel: PlayerViewMode
                 if (viewModel.playingFromSongsScreen) { // Playing from songs screen
                     viewModel.queuedSongs = songInfo.toMutableStateList()
                     for (i in songInfo) {
-                        mediaController?.addMediaItem(MediaItem.fromUri(i.songUri))
+                        mediaController?.addMediaItem(MediaItem.fromUri(i.uri))
                     }
                 } else { // Playing from albums screen
                     viewModel.queuedSongs = viewModel.shuffledAlbumSongInfo.toMutableStateList()
                     for (i in viewModel.shuffledAlbumSongInfo) {
-                        mediaController?.addMediaItem(MediaItem.fromUri(i.songUri))
+                        mediaController?.addMediaItem(MediaItem.fromUri(i.uri))
                     }
                 }
                 mediaController?.prepare()

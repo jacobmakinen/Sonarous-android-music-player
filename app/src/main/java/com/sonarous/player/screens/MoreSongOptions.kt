@@ -101,7 +101,7 @@ fun MoreSongOptions(
 
 @Composable
 fun EditSongTagScreen(viewModel: PlayerViewModel, context: Context) {
-    val songUri = viewModel.moreOptionsSelectedSong.songUri
+    val songUri = viewModel.moreOptionsSelectedSong.uri
     val songTitle = remember { mutableStateOf(viewModel.moreOptionsSelectedSong.name) }
     val albumName = remember { mutableStateOf(viewModel.moreOptionsSelectedSong.album) }
     val artistName = remember { mutableStateOf(viewModel.moreOptionsSelectedSong.artist) }
@@ -225,7 +225,7 @@ fun ReplicateAlbumArt(viewModel: PlayerViewModel) {
 
 @Composable
 fun DeleteSong(viewModel: PlayerViewModel, contentResolver: ContentResolver) {
-    val songUri = viewModel.moreOptionsSelectedSong.songUri
+    val songUri = viewModel.moreOptionsSelectedSong.uri
     MoreOptionRow(
         viewModel,
         true,
@@ -273,7 +273,7 @@ fun MoreOptionRow(
 
 @Composable
 fun ReplaceAlbumArt(viewModel: PlayerViewModel, context: Context) {
-    val songUri = viewModel.moreOptionsSelectedSong.songUri
+    val songUri = viewModel.moreOptionsSelectedSong.uri
     MoreOptionRow(
         viewModel,
         viewModel.replicatedAlbumArt != null,
@@ -350,7 +350,7 @@ fun addSongToQueueLogic(
     viewModel: PlayerViewModel,
 ) {
     if (viewModel.queueingSongs) {
-        mediaController?.addMediaItem(MediaItem.fromUri(song.songUri))
+        mediaController?.addMediaItem(MediaItem.fromUri(song.uri))
         viewModel.queuedSongs.add(song)
     } else {
         viewModel.queueingSongs = true
@@ -364,7 +364,7 @@ fun addSongToQueueLogic(
             song != viewModel.queuedSongs[viewModel.songIndex]
         }
         viewModel.queuedSongs.add(song)
-        mediaController?.addMediaItem(MediaItem.fromUri(song.songUri))
+        mediaController?.addMediaItem(MediaItem.fromUri(song.uri))
         viewModel.songIndex = 0
     }
     viewModel.showMoreSongOptions = false

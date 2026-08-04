@@ -107,7 +107,8 @@ fun NavHost(
                 songInfo,
                 mediaController,
                 viewModel,
-                navController
+                navController,
+                context
             )
         }
         composable(route = "settings") {
@@ -201,7 +202,7 @@ fun Pager(
 @Composable
 fun LandscapeTabRow(
     mediaController: MediaController?,
-    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
+    visualizer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
@@ -365,7 +366,7 @@ fun LandscapeTabRow(
         ) { currentPage ->
             when (currentPage) {
                 0 -> SongQueue(viewModel, mediaController)
-                1 -> PlayerScreen(mediaController, spectrumAnalyzer, viewModel, songInfo)
+                1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController, 6)
                 4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)

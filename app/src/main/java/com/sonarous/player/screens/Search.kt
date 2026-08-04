@@ -36,7 +36,11 @@ object Search {
         val regex = buildSearchRegEx(searchText)
         val searchedSongs = mutableListOf<SongInfo>()
         for (song in songs) {
-            if (song.name.lowercase().matches(regex)) searchedSongs.add(song)
+            if (song.name.equals(searchText, ignoreCase = true)) {
+                searchedSongs.add(0, song)
+            } else if (song.name.lowercase().matches(regex)) {
+                searchedSongs.add(song)
+            }
         }
         return searchedSongs
     }
@@ -45,7 +49,11 @@ object Search {
         val regex = buildSearchRegEx(searchText)
         val searchedAlbums = mutableListOf<AlbumInfo>()
         for (album in albums) {
-            if (album.albumName.lowercase().matches(regex)) searchedAlbums.add(album)
+            if (album.albumName.equals(searchText, ignoreCase = true)) {
+                searchedAlbums.add(0, album)
+            } else if (album.albumName.lowercase().matches(regex)) {
+                searchedAlbums.add(album)
+            }
         }
         return searchedAlbums
     }
@@ -54,15 +62,28 @@ object Search {
         val regex = buildSearchRegEx(searchText)
         val searchedArtists = mutableListOf<String>()
         for (artist in artists) {
-            if (artist.lowercase().matches(regex)) searchedArtists.add(artist)
+            if (artist.equals(searchText, ignoreCase = true)) {
+                searchedArtists.add(0, artist)
+            } else if (artist.lowercase().matches(regex)) {
+                searchedArtists.add(artist)
+            }
         }
         return searchedArtists
     }
 
     private fun buildSearchRegEx(searchText: String): Regex {
         var pattern = ""
+        var i = 0
         for (char in searchText) {
-            pattern += """([a-zA-Z0-9]|\s|\p{P})*${char.lowercase()}([a-zA-Z0-9]|\s|\p{P})*"""
+//            pattern += """([a-zA-Z0-9]|\s|\p{P})*${char.lowercase()}([a-zA-Z0-9]|\s|\p{P})*"""
+            pattern += if (i == searchText.length - 1) {
+                """${char.lowercase()}([a-zA-Z0-9]|\s|\p{P})*"""
+            } else if (i == 0) {
+                """([a-zA-Z0-9]|\s|\p{P})*${char.lowercase()}([a-zA-Z0-9]|\s|\p{P})?([a-zA-Z0-9]|\s|\p{P})?([a-zA-Z0-9]|\s|\p{P})?([a-zA-Z0-9]|\s|\p{P})?"""
+            } else {
+                """${char.lowercase()}([a-zA-Z0-9]|\s|\p{P})?([a-zA-Z0-9]|\s|\p{P})?([a-zA-Z0-9]|\s|\p{P})?([a-zA-Z0-9]|\s|\p{P})?"""
+            }
+            i ++
         }
         return pattern.toRegex()
     }

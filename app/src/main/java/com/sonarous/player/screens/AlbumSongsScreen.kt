@@ -1,10 +1,10 @@
 package com.sonarous.player.screens
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -27,32 +26,72 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.navigation.NavController
+import com.sonarous.player.BackButtonRow
 import com.sonarous.player.LargeText
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
-import com.sonarous.player.Text
 
 @ExperimentalFoundationApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumSongsScreen(album: String, songInfo: List<SongInfo>, mediaController: MediaController?, viewModel: PlayerViewModel, navController: NavController) {
-    val albumSongsList = mutableListOf<SongInfo>()
+fun AlbumSongsScreen(
+    album: String,
+    songInfo: List<SongInfo>,
+    mediaController: MediaController?,
+    viewModel: PlayerViewModel,
+    navController: NavController,
+    context: Context
+) {
+    val albumSongs = mutableListOf<SongInfo>()
     for (i in 0 until songInfo.count()) {
         if (songInfo[i].album == album) {
-            albumSongsList.add(songInfo[i])
+            albumSongs.add(songInfo[i])
         }
     }
+
+    val songMediaItems by remember(songInfo) {
+        derivedStateOf {
+            val tmpList = mutableListOf<MediaItem>()
+            for (song in albumSongs) {
+                tmpList.add(MediaItem.fromUri(song.uri))
+            }
+            tmpList
+        }
+    }
+
+    val playSongCallback = remember(songMediaItems) {
+        { i: Int ->
+            if (mediaController != null) {
+                viewModel.queueingSongs = false
+                viewModel.shuffleMode = false
+                mediaController.clearMediaItems()
+                mediaController.addMediaItems(songMediaItems)
+                mediaController.prepare()
+                mediaController.seekTo(i, 0L)
+                mediaController.play()
+                viewModel.queuedSongs = albumSongs.toMutableStateList()
+                viewModel.songIndex = i
+                viewModel.updateSongDuration((albumSongs[i].time).toLong())
+                viewModel.playingFromSongsScreen = false // Shows details from albums list
+                navController.navigate("pager")
+                viewModel.showSearchBar = false
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,128 +103,70 @@ fun AlbumSongsScreen(album: String, songInfo: List<SongInfo>, mediaController: M
         horizontalAlignment = Alignment.Start,
     ) {
         // Top bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                content = {
-                    Icon(
-                        painterResource(R.drawable.arrow_back),
-                        contentDescription = "Back arrow"
-                    )
-                },
-                onClick = {
-                    navController.popBackStack()
-                },
-                colors = IconButtonColors(
-                    contentColor = viewModel.iconColor,
-                    containerColor = Color.Transparent,
-                    disabledContentColor = viewModel.iconColor,
-                    disabledContainerColor = Color.Transparent
-                )
-            )
-            Spacer(
-                modifier = Modifier
-                    .width(5.dp)
-            )
-            LargeText(album, viewModel = viewModel)
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(60.dp),
+//            horizontalArrangement = Arrangement.Start,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            IconButton(
+//                content = {
+//                    Icon(
+//                        painterResource(R.drawable.arrow_back),
+//                        contentDescription = "Back arrow"
+//                    )
+//                },
+//                onClick = {
+//                    navController.popBackStack()
+//                },
+//                colors = IconButtonColors(
+//                    contentColor = viewModel.iconColor,
+//                    containerColor = Color.Transparent,
+//                    disabledContentColor = viewModel.iconColor,
+//                    disabledContainerColor = Color.Transparent
+//                )
+//            )
+//            Spacer(
+//                modifier = Modifier
+//                    .width(5.dp)
+//            )
+//            LargeText(album, viewModel = viewModel)
+//        }
+        BackButtonRow(viewModel, 60.dp, album) {
+            navController.popBackStack()
         }
-        Row(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            val fetchStrategy = LazyListPrefetchStrategy(50)
-            val lazyColumnState = rememberLazyListState(
-                initialFirstVisibleItemIndex = 0,
-                initialFirstVisibleItemScrollOffset = 0,
-                prefetchStrategy = fetchStrategy
-            )
-            val lazyColumnSize = albumSongsList.count()
-            LazyColumn(
+        Box {
+            Row(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.955f),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                state = lazyColumnState,
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Start
             ) {
-                items(lazyColumnSize) { i ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(75.dp)
-                            .padding(5.dp)
-                            .clickable(
-                                onClick = {
-                                    if (mediaController != null) {
-                                        viewModel.queueingSongs = false
-                                        viewModel.shuffleMode = false
-                                        mediaController.clearMediaItems()
-                                        for (j in 0 until albumSongsList.count()) {
-                                            mediaController.addMediaItem(
-                                                MediaItem.fromUri(
-                                                    albumSongsList[j].songUri
-                                                )
-                                            )
-                                        }
-                                        mediaController.prepare()
-                                        mediaController.seekTo(i, 0L)
-                                        mediaController.play()
-                                        viewModel.queuedSongs = albumSongsList.toMutableStateList()
-                                        viewModel.songIndex = i
-                                        viewModel.updateSongDuration((albumSongsList[i].time).toLong())
-                                        viewModel.playingFromSongsScreen = false // Shows details from albums list
-                                        navController.navigate("pager")
-                                    }
-                                }
-                            ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Image( // Album art
-                            bitmap = albumSongsList[i].albumArt,
-                            modifier = Modifier
-                                .size(60.dp),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .width(10.dp)
-                        )
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.Top,
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            LargeText( //Song name
-                                text = albumSongsList[i].name,
-                                viewModel = viewModel
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .height(5.dp)
-                            )
-                            Text( // Artist name
-                                text = albumSongsList[i].artist,
-                                viewModel = viewModel
-                            )
-                            Text( // Album name
-                                text = albumSongsList[i].album,
-                                viewModel = viewModel
-                            )
-                        }
+                val fetchStrategy = LazyListPrefetchStrategy(50)
+                val lazyColumnState = rememberLazyListState(
+                    initialFirstVisibleItemIndex = 0,
+                    initialFirstVisibleItemScrollOffset = 0,
+                    prefetchStrategy = fetchStrategy
+                )
+                val lazyColumnSize = albumSongs.count()
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.955f),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start,
+                    state = lazyColumnState,
+                ) {
+                    items(lazyColumnSize) { i ->
+                        SongRow(albumSongs[i], viewModel, i, playSongCallback)
                     }
                 }
+                ScrollBar(lazyColumnState, viewModel, lazyColumnSize.toFloat())
             }
-            ScrollBar(lazyColumnState, viewModel, lazyColumnSize.toFloat())
+            if (viewModel.showMoreSongOptions) {
+                MoreSongOptions(viewModel, mediaController, context)
+            }
         }
     }
 }

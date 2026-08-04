@@ -56,7 +56,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
@@ -69,7 +68,6 @@ import com.sonarous.player.increaseBrightness
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.collections.listOf
-import kotlin.concurrent.thread
 
 @ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
@@ -85,12 +83,12 @@ fun SongsScreen(
         derivedStateOf {
             val tmpList = mutableListOf<MediaItem>()
             for (song in songInfo) {
-                tmpList.add(MediaItem.fromUri(song.songUri))
+                tmpList.add(MediaItem.fromUri(song.uri))
             }
             tmpList
         }
     }
-    val lazyColumnSize = songInfo.count()
+
     val playSongCallback = remember {
         { i: Int ->
             viewModel.queueingSongs = false
@@ -112,6 +110,39 @@ fun SongsScreen(
 
     val searchText = remember { mutableStateOf("") }
     var searchedSongs by remember { mutableStateOf<List<SongInfo>>(listOf()) }
+
+    val searchedSongsMediaList by remember(searchedSongs, songInfo) {
+        derivedStateOf {
+            val tmpList = mutableListOf<MediaItem>()
+            for (song in searchedSongs) {
+                tmpList.add(MediaItem.fromUri(song.uri))
+            }
+            tmpList
+        }
+    }
+
+    val searchedPlaySongCallback = remember(searchedSongsMediaList) {
+        { i: Int ->
+            viewModel.queueingSongs = true
+            viewModel.shuffleMode = false
+
+            mediaController?.clearMediaItems()
+            // May want to change what songs are played after a searched one
+            mediaController?.addMediaItem(MediaItem.fromUri(searchedSongs[i].uri))
+            mediaController?.prepare()
+//            mediaController?.seekTo(i, 0L)
+            mediaController?.play()
+
+            pagerState.requestScrollToPage(1)
+            searchText.value = ""
+            viewModel.showSearchBar = false
+//            viewModel.queuedSongs = searchedSongs.toMutableStateList()
+            viewModel.queuedSongs = mutableStateListOf(searchedSongs[i])
+            viewModel.updateSongDuration((searchedSongs[i].time).toLong())
+            viewModel.songIndex = 0
+            viewModel.playingFromSongsScreen = true
+        }
+    }
 
     LaunchedEffect(searchText.value) {
         this.launch(Dispatchers.Default) {
@@ -154,10 +185,10 @@ fun SongsScreen(
                         (if (searchText.value == "") songInfo.size else searchedSongs.size)
                     ) { i ->
                         SongRow(
-                            (if (searchText.value == "") songInfo[i] else searchedSongs[i]),
+                            ( if (searchText.value == "") songInfo[i] else searchedSongs[i] ),
                             viewModel,
                             i,
-                            playSongCallback
+                            ( if (searchText.value == "") playSongCallback else searchedPlaySongCallback )
                         )
                     }
                 }
