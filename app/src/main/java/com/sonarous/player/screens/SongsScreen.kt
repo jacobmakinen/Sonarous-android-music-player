@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.sonarous.player.LargeText
@@ -60,7 +61,7 @@ import kotlinx.coroutines.launch
 @OptIn(UnstableApi::class)
 @Composable
 fun SongsScreen(
-    songInfo: List<SongInfo>,
+    songs: List<SongInfo>,
     mediaController: MediaController?,
     viewModel: PlayerViewModel,
     pagerState: PagerState,
@@ -68,11 +69,7 @@ fun SongsScreen(
 ) {
     val mediaItemList by remember {
         derivedStateOf {
-            val tmpList = mutableListOf<MediaItem>()
-            for (song in songInfo) {
-                tmpList.add(MediaItem.fromUri(song.uri))
-            }
-            tmpList
+            getMediaItemList(songs)
         }
     }
 
@@ -88,8 +85,8 @@ fun SongsScreen(
             mediaController?.play()
 
             pagerState.requestScrollToPage(1)
-            viewModel.queuedSongs = songInfo.toMutableStateList()
-            viewModel.updateSongDuration((songInfo[i].duration).toLong())
+            viewModel.queuedSongs = songs.toMutableStateList()
+            viewModel.updateSongDuration((songs[i].duration).toLong())
             viewModel.songIndex = i
             viewModel.playingFromSongsScreen = true
         }
@@ -98,7 +95,7 @@ fun SongsScreen(
     val searchText = remember { mutableStateOf("") }
     var searchedSongs by remember { mutableStateOf<List<SongInfo>>(listOf()) }
 
-    val searchedSongsMediaList by remember(searchedSongs, songInfo) {
+    val searchedSongsMediaList by remember(searchedSongs, songs) {
         derivedStateOf {
             val tmpList = mutableListOf<MediaItem>()
             for (song in searchedSongs) {
@@ -133,7 +130,7 @@ fun SongsScreen(
 
     LaunchedEffect(searchText.value) {
         this.launch(Dispatchers.Default) {
-            searchedSongs = Search.searchSongs(songInfo, searchText.value)
+            searchedSongs = Search.searchSongs(songs, searchText.value)
         }
     }
 
@@ -169,10 +166,10 @@ fun SongsScreen(
                     state = viewModel.songsScreenLazyColumnState,
                 ) {
                     items(
-                        (if (searchText.value == "") songInfo.size else searchedSongs.size)
+                        (if (searchText.value == "") songs.size else searchedSongs.size)
                     ) { i ->
                         SongRow(
-                            ( if (searchText.value == "") songInfo[i] else searchedSongs[i] ),
+                            ( if (searchText.value == "") songs[i] else searchedSongs[i] ),
                             viewModel,
                             i,
                             ( if (searchText.value == "") playSongCallback else searchedPlaySongCallback )
@@ -182,7 +179,7 @@ fun SongsScreen(
                 ScrollBar(
                     viewModel.songsScreenLazyColumnState,
                     viewModel,
-                    (if (searchText.value == "") songInfo.size.toFloat() else searchedSongs.size.toFloat())
+                    (if (searchText.value == "") songs.size.toFloat() else searchedSongs.size.toFloat())
                 )
             }
         }
@@ -190,6 +187,21 @@ fun SongsScreen(
             MoreSongOptions(viewModel, mediaController, context)
         }
     }
+}
+
+fun getMediaItemList(songs: List<SongInfo>): List<MediaItem> {
+    val tmpList = mutableListOf<MediaItem>()
+    for (song in songs) {
+        val metadata = MediaMetadata.Builder()
+            .setTitle(song.name)
+            .setArtist(song.artist)
+            .setAlbumTitle(song.album)
+            .setDurationMs(song.duration.toLong())
+            .build()
+
+        tmpList.add(MediaItem.Builder().setUri(song.uri).setMediaMetadata(metadata).build())
+    }
+    return tmpList
 }
 
 @Composable

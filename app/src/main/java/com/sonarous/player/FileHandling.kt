@@ -11,7 +11,7 @@ import java.io.FileNotFoundException
 
 @OptIn(UnstableApi::class)
 fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
-    val songInfo = mutableListOf<SongInfo>()
+    val songs = mutableListOf<SongInfo>()
     val externalUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
     val projection = arrayOf(
         MediaStore.Audio.Media.DISPLAY_NAME,
@@ -59,7 +59,7 @@ fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
             } catch (_: FileNotFoundException) {
                 albumCoverNotFoundBitmap
             }
-            songInfo.add(
+            songs.add(
                 SongInfo(
                     getName,
                     getFileName,
@@ -72,20 +72,21 @@ fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
             )
         }
     }
-    val albumInfo = mutableListOf<AlbumInfo>()
+    val albums = mutableListOf<AlbumInfo>()
     val addedAlbumNames = mutableListOf<String>()
-    for (i in 0 until songInfo.size) {
-        if (songInfo[i].album in addedAlbumNames) {
+    // Fill albums
+    for (i in 0 until songs.size) {
+        if (songs[i].album in addedAlbumNames) {
             continue
         } else {
-            addedAlbumNames.add(songInfo[i].album)
-            albumInfo.add(
+            addedAlbumNames.add(songs[i].album)
+            albums.add(
                 AlbumInfo(
-                    songInfo[i].album,
-                    songInfo[i].albumArt
+                    songs[i].album,
+                    songs[i].albumArt
                 )
             )
         }
     }
-    return Pair(MergeSort.sort(songInfo), MergeSort.sort(albumInfo))
+    return Pair(MergeSort.sort(songs), MergeSort.sort(albums))
 }
