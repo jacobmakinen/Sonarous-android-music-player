@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import com.sonarous.player.BackButtonRow
+import com.sonarous.player.MergeSort
 import com.sonarous.player.ScrollBar
 import com.sonarous.player.SongInfo
 import com.sonarous.player.Text
@@ -154,7 +155,7 @@ fun ArtistSongs(
 
 @Composable
 fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist: MutableState<String?>) {
-    val artists = remember(songInfo) { getArtists(songInfo).sorted() }
+    val artists = remember(songInfo) { MergeSort.sort(getArtists(songInfo)) }
     val lazyColumnState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,

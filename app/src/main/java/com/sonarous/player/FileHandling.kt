@@ -87,6 +87,5 @@ fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
             )
         }
     }
-    val mergeSort = MergeSort()
-    return Pair(mergeSort.sort(songInfo), mergeSort.sort(albumInfo))
+    return Pair(MergeSort.sort(songInfo), MergeSort.sort(albumInfo))
 }
