@@ -71,74 +71,10 @@ class MainActivity : ComponentActivity() {
         val songInfo = mutableStateListOf<SongInfo>()
         val albumInfo = mutableStateListOf<AlbumInfo>()
 
-        //==================== Assign permission launchers ====================//
-        val requestPermissionLauncher = registerForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions(),
-        ) { requests ->
-            // Request file access
-            if (Manifest.permission.READ_MEDIA_AUDIO in requests.keys || Manifest.permission.READ_EXTERNAL_STORAGE in requests.keys) {
-                when {
-                    Manifest.permission.READ_MEDIA_AUDIO in requests.keys -> {
-                        if (requests[Manifest.permission.READ_MEDIA_AUDIO] == true) {
-                            viewModel.mediaInfoPair = getSongInfo(applicationContext)
-                        } else {
-                            requestPermissions(
-                                arrayOf(Manifest.permission.READ_MEDIA_AUDIO),
-                                1
-                            )
-                        }
-                    }
+        //==================== Assign activity launchers ====================//
+        val requestPermissionLauncher = getFileActivityLauncher()
 
-                    Manifest.permission.READ_EXTERNAL_STORAGE in requests.keys -> {
-                        if (requests[Manifest.permission.READ_EXTERNAL_STORAGE] == true) {
-                            viewModel.mediaInfoPair = getSongInfo(applicationContext)
-                        } else {
-                            requestPermissions(
-                                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                                1
-                            )
-                        }
-                    }
-                }
-            }
-            if (Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK in requests.keys || Manifest.permission.POST_NOTIFICATIONS in requests.keys) {
-                when {
-                    Manifest.permission.POST_NOTIFICATIONS in requests.keys -> {
-                        if (requests[Manifest.permission.POST_NOTIFICATIONS] == false) {
-                            requestPermissions(
-                                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                                3
-                            )
-                        }
-                    }
-
-                    Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK in requests.keys -> {
-                        if (requests[Manifest.permission.READ_EXTERNAL_STORAGE] == true) {
-                            requestPermissions(
-                                arrayOf(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK),
-                                4
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        viewModel.editAlbumArtLauncher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
-            if (result.resultCode == RESULT_OK && viewModel.replicatedAlbumArt != null) {
-                editSongAlbumArt(this,viewModel.moreOptionsSelectedSong.uri, viewModel.replicatedAlbumArt!!, viewModel)
-            }
-        }
-
-        viewModel.editSongTagLauncher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
-            if (result.resultCode == RESULT_OK && viewModel.editSongTags != null) {
-                editSongTag(this,viewModel.moreOptionsSelectedSong.uri, viewModel.editSongTags!!, viewModel)
-            }
-        }
+        setSongEditingActivityLaunchers()
 
         // --------------------- Loading --------------------- //
 
@@ -213,7 +149,7 @@ class MainActivity : ComponentActivity() {
                     applicationContext
                 )
 
-                // --------------------- Monitoring --------------------- //
+                // --------------------- Updating --------------------- //
                 if (viewModel.isPlaying) {
                     LaunchedEffect(Unit) {
                         while (true) {
@@ -238,6 +174,78 @@ class MainActivity : ComponentActivity() {
                     } else if (viewModel.thermalStatus <= PowerManager.THERMAL_STATUS_SEVERE) {
                         // TODO - Should check to see if user wants visualizer hidden
                         audioProcessor.visualiserIsOn = true
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setSongEditingActivityLaunchers() {
+        viewModel.editAlbumArtLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK && viewModel.replicatedAlbumArt != null) {
+                editSongAlbumArt(this,viewModel.moreOptionsSelectedSong.uri, viewModel.replicatedAlbumArt!!, viewModel)
+            }
+        }
+
+        viewModel.editSongTagLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK && viewModel.editSongTags != null) {
+                editSongTag(this,viewModel.moreOptionsSelectedSong.uri, viewModel.editSongTags!!, viewModel)
+            }
+        }
+    }
+
+    private fun getFileActivityLauncher(): ActivityResultLauncher<Array<String>> {
+        return registerForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+        ) { requests ->
+            // Request file access
+            if (Manifest.permission.READ_MEDIA_AUDIO in requests.keys || Manifest.permission.READ_EXTERNAL_STORAGE in requests.keys) {
+                when {
+                    Manifest.permission.READ_MEDIA_AUDIO in requests.keys -> {
+                        if (requests[Manifest.permission.READ_MEDIA_AUDIO] == true) {
+                            viewModel.mediaInfoPair = getSongInfo(applicationContext)
+                        } else {
+                            requestPermissions(
+                                arrayOf(Manifest.permission.READ_MEDIA_AUDIO),
+                                1
+                            )
+                        }
+                    }
+
+                    Manifest.permission.READ_EXTERNAL_STORAGE in requests.keys -> {
+                        if (requests[Manifest.permission.READ_EXTERNAL_STORAGE] == true) {
+                            viewModel.mediaInfoPair = getSongInfo(applicationContext)
+                        } else {
+                            requestPermissions(
+                                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                1
+                            )
+                        }
+                    }
+                }
+            }
+            if (Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK in requests.keys || Manifest.permission.POST_NOTIFICATIONS in requests.keys) {
+                when {
+                    Manifest.permission.POST_NOTIFICATIONS in requests.keys -> {
+                        if (requests[Manifest.permission.POST_NOTIFICATIONS] == false) {
+                            requestPermissions(
+                                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                                3
+                            )
+                        }
+                    }
+
+                    Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK in requests.keys -> {
+                        if (requests[Manifest.permission.READ_EXTERNAL_STORAGE] == true) {
+                            requestPermissions(
+                                arrayOf(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK),
+                                4
+                            )
+                        }
                     }
                 }
             }
@@ -322,7 +330,6 @@ fun getMediaInfo(
     requestPermissionLauncher.launch(permissionList.toTypedArray())
     return mediaInfoPair
 }
-
 
 fun Color.increaseBrightness(brightness: Float): Color {
     val hsl = FloatArray(3)

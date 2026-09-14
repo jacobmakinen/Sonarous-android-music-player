@@ -141,7 +141,7 @@ fun NavHost(
 @Composable
 fun Pager(
     mediaController: MediaController?,
-    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
+    visualizer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
@@ -176,7 +176,7 @@ fun Pager(
 
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
         PortraitTabRow(
-            mediaController, spectrumAnalyzer,
+            mediaController, visualizer,
             viewModel, songInfo,
             albumInfo, navController,
             selectedTab, pagerState,
@@ -186,7 +186,7 @@ fun Pager(
         )
     } else {
         LandscapeTabRow(
-            mediaController, spectrumAnalyzer,
+            mediaController, visualizer,
             viewModel, songInfo,
             albumInfo, navController,
             selectedTab, pagerState,
@@ -380,7 +380,7 @@ fun LandscapeTabRow(
 @Composable
 fun PortraitTabRow(
     mediaController: MediaController?,
-    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
+    visualizer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
     songInfo: List<SongInfo>,
     albumInfo: List<AlbumInfo>,
@@ -542,7 +542,7 @@ fun PortraitTabRow(
         ) { currentPage ->
             when (currentPage) {
                 0 -> SongQueue(viewModel, mediaController)
-                1 -> PlayerScreen(mediaController, spectrumAnalyzer, viewModel, songInfo)
+                1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
                 4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)

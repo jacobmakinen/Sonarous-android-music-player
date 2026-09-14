@@ -112,7 +112,7 @@ class PlayerService : MediaSessionService() {
 
         private fun sendVisualizerData(soundBuffer: ByteBuffer) {
             //============================ Collecting buffer data ============================//
-            val fftArray = DoubleArray(ARRAY_SIZE) // 512 as it's a power of 2 and isn't too laggy
+            val fftArray = DoubleArray(ARRAY_SIZE)
             var bufferVolume = getFftData(soundBuffer, fftArray)
 
             //================================= Visualizer data =================================//
@@ -202,63 +202,5 @@ class PlayerService : MediaSessionService() {
             tempList[6] = (absValueList[205])
             return tempList
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-
-        // --------------------- Player dependency & player init --------------------- //
-        val myAudioSink = DefaultAudioSink.Builder(this)
-            .setAudioProcessors(arrayOf(AudioVisualizerProcessor))
-            .build()
-        val renderersFactory = object : DefaultRenderersFactory(this) {
-            override fun buildAudioRenderers(
-                context: Context,
-                extensionRendererMode: Int,
-                mediaCodecSelector: MediaCodecSelector,
-                enableDecoderFallback: Boolean,
-                audioSink: AudioSink,
-                eventHandler: Handler,
-                eventListener: AudioRendererEventListener,
-                out: ArrayList<Renderer>
-            ) {
-                super.buildAudioRenderers(
-                    context,
-                    extensionRendererMode,
-                    mediaCodecSelector,
-                    enableDecoderFallback,
-                    myAudioSink,
-                    eventHandler,
-                    eventListener,
-                    out
-                )
-                out.add(
-                    MediaCodecAudioRenderer(
-                        context,
-                        mediaCodecSelector,
-                        enableDecoderFallback,
-                        eventHandler,
-                        eventListener,
-                        myAudioSink
-                    )
-                )
-            }
-        }
-        player = ExoPlayer.Builder(this)
-            .setRenderersFactory(renderersFactory)
-            .setWakeMode(C.WAKE_MODE_LOCAL)
-            .build()
-        mediaSession = MediaSession.Builder(this, player)
-            .build()
-    }
-
-    override fun onDestroy() {
-        mediaSession ?: Log.e("SonarousLogs", "Media session: null [service] >> Unable to release")
-        mediaSession?.run {
-            player.release()
-            release()
-            mediaSession = null
-        }
-        super.onDestroy()
     }
 }

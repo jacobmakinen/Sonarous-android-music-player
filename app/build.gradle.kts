@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.sonarous.player"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.sonarous.player"
@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.lifecycle.service)
     implementation(libs.jaudiotagger)
     implementation(libs.kotlinx.serialization.json) // Apache 2.0
     implementation(libs.jtransforms) // Custom JTransform license
