@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.lifecycle.service)
+//    implementation(libs.androidx.lifecycle.service)
     implementation(libs.jaudiotagger)
     implementation(libs.kotlinx.serialization.json) // Apache 2.0
     implementation(libs.jtransforms) // Custom JTransform license
@@ -65,11 +65,4 @@ dependencies {
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.animation)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }
