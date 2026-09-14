@@ -1,8 +1,9 @@
 package com.sonarous.player.components
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
-import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.SonicAudioProcessor
@@ -10,6 +11,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.RenderersFactory
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
@@ -17,6 +19,7 @@ import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.sonarous.player.MainActivity
 import com.sonarous.player.VisualiserData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +45,78 @@ class PlayerService : MediaSessionService() {
         return mediaSession
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        // --------------------- Player dependency & player init --------------------- //
+        val renderersFactory = getRendererFactory()
+
+        player = ExoPlayer.Builder(this)
+            .setRenderersFactory(renderersFactory)
+            .setWakeMode(C.WAKE_MODE_LOCAL)
+            .build()
+
+        // Allows the media "chip" to show
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        mediaSession = MediaSession.Builder(this, player)
+            .setSessionActivity(pendingIntent)
+            .build()
+    }
+
+    override fun onDestroy() {
+        mediaSession?.run {
+            player.release()
+            release()
+            mediaSession = null
+        }
+        super.onDestroy()
+    }
+
+    private fun getRendererFactory(): RenderersFactory {
+        val myAudioSink = DefaultAudioSink.Builder(this)
+            .setAudioProcessors(arrayOf(AudioVisualizerProcessor))
+            .build()
+        return object : DefaultRenderersFactory(this) {
+            override fun buildAudioRenderers(
+                context: Context,
+                extensionRendererMode: Int,
+                mediaCodecSelector: MediaCodecSelector,
+                enableDecoderFallback: Boolean,
+                audioSink: AudioSink,
+                eventHandler: Handler,
+                eventListener: AudioRendererEventListener,
+                out: ArrayList<Renderer>
+            ) {
+                super.buildAudioRenderers(
+                    context,
+                    extensionRendererMode,
+                    mediaCodecSelector,
+                    enableDecoderFallback,
+                    myAudioSink,
+                    eventHandler,
+                    eventListener,
+                    out
+                )
+                out.add(
+                    MediaCodecAudioRenderer(
+                        context,
+                        mediaCodecSelector,
+                        enableDecoderFallback,
+                        eventHandler,
+                        eventListener,
+                        myAudioSink
+                    )
+                )
+            }
+        }
+    }
+
     object AudioVisualizerProcessor : AudioProcessor {
         private val _visualizerStateFlow = MutableStateFlow(
             VisualiserData(doubleArrayOf(), 0.0)
@@ -52,6 +127,7 @@ class PlayerService : MediaSessionService() {
         var visualiserIsOn = false
         private val sonicAudioProcessor = SonicAudioProcessor()
         private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+        // 512 as it's a power of 2 and isn't too laggy
         private const val ARRAY_SIZE = 512
         private var fft = DoubleFFT_1D(ARRAY_SIZE.toLong())
         private var endOfStreamQueued = false
@@ -100,9 +176,9 @@ class PlayerService : MediaSessionService() {
                 outputBuffer
             }
             if (visualiserIsOn) {
-                sendVisualizerData(soundBuffer)
+                processVisualizerData(soundBuffer)
             }
-            //================================= End of equaliser processing =================================//
+            //================================= End of visualizer processing =================================//
             outputBuffer = AudioProcessor.EMPTY_BUFFER
             if (endOfStreamQueued) {
                 isEnded = true
@@ -110,7 +186,7 @@ class PlayerService : MediaSessionService() {
             return soundBuffer
         }
 
-        private fun sendVisualizerData(soundBuffer: ByteBuffer) {
+        private fun processVisualizerData(soundBuffer: ByteBuffer) {
             //============================ Collecting buffer data ============================//
             val fftArray = DoubleArray(ARRAY_SIZE)
             var bufferVolume = getFftData(soundBuffer, fftArray)

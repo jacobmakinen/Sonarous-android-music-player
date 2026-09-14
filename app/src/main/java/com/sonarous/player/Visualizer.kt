@@ -54,15 +54,15 @@ import kotlin.math.pow
 @OptIn(UnstableApi::class)
 @Composable
 fun Visualizer(
-    spectrumAnalyzer: PlayerService.AudioVisualizerProcessor,
+    visualizer: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel
 ) {
     val scope = rememberCoroutineScope()
     var visualizerList by remember { mutableStateOf(doubleArrayOf()) }
     var volume by remember { mutableDoubleStateOf(0.0) }
 
-    // Collecting flow data from spectrum analyzer
-    val stateFlowData = spectrumAnalyzer.visualizerStateFlow.collectAsState()
+    // Collecting flow data from visualizer
+    val stateFlowData = visualizer.visualizerStateFlow.collectAsState()
     remember(stateFlowData.value) {
         scope.launch {
             visualizerList = stateFlowData.value.visualiserList
