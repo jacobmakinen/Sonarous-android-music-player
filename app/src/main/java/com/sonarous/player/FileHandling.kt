@@ -38,6 +38,7 @@ fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
         val albumColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
         val artistColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
         val durationColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+
         while (it.moveToNext()) {
             val getName = it.getString(nameColumn)
             val getFileName = it.getString(fileNameColumn)
