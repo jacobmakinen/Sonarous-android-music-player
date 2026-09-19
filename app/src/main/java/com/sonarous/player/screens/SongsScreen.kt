@@ -1,6 +1,7 @@
 package com.sonarous.player.screens
 
 import android.content.Context
+import android.os.Bundle
 import androidx.annotation.OptIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -197,6 +198,9 @@ fun getMediaItemList(songs: List<SongInfo>): List<MediaItem> {
             .setArtist(song.artist)
             .setAlbumTitle(song.album)
             .setDurationMs(song.duration.toLong())
+            .setExtras(Bundle().apply {
+                putString("MEDIA_URI", song.uri.toString())
+            })
             .build()
 
         tmpList.add(MediaItem.Builder().setUri(song.uri).setMediaMetadata(metadata).build())

@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-//    implementation(libs.androidx.lifecycle.service)
+    implementation(libs.androidx.lifecycle.service)
     implementation(libs.jaudiotagger)
     implementation(libs.kotlinx.serialization.json) // Apache 2.0
     implementation(libs.jtransforms) // Custom JTransform license

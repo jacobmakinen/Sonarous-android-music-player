@@ -138,25 +138,6 @@ fun PortraitPlayer(
     }
 }
 
-//@Composable
-//fun ThermalVisualizerWarning(viewModel: PlayerViewModel) {
-//    Box(
-//        modifier = Modifier
-//            .size(340.dp, 140.dp)
-//            .border(0.dp, viewModel.iconColor),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Row(
-//            modifier = Modifier.padding(15.dp),
-//            horizontalArrangement = Arrangement.Center,
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Icon(painterResource(R.drawable.thermal_alert), null, tint = viewModel.iconColor, modifier = Modifier.size(30.dp))
-//            MiscText("Thermal overload : Visualizer suppressed", fontSize = 17.sp, viewModel = viewModel)
-//        }
-//    }
-//}
-
 @Composable
 fun ThermalVisualizerWarning(viewModel: PlayerViewModel) {
     Column(

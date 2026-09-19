@@ -19,7 +19,6 @@ import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import com.sonarous.player.MainActivity
 import com.sonarous.player.VisualiserData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

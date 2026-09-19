@@ -36,6 +36,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.ui.theme.shareTechFont
 import kotlinx.coroutines.launch
@@ -84,8 +86,7 @@ fun BackButtonRow(viewModel: PlayerViewModel, height: Dp = 45.dp, text: String? 
 }
 
 @Composable
-fun Text(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel) {
-    val maxTextLength = 20
+fun Text(text: String, modifier: Modifier = Modifier, viewModel: PlayerViewModel, maxTextLength: Int = 20) {
     Text(
         modifier = modifier,
         text = if (text.length > maxTextLength) {
@@ -215,7 +216,7 @@ fun ScrollBar(columnState: LazyListState, viewModel: PlayerViewModel, lazyColumn
                         val yDelta = pointerChange.position.y
                         scope.launch {
                             columnState.scrollBy(
-                                // Percentage change in position * total lazy column size in px
+                                // Proportion of change in position * total lazy column size in px
                                 (yDelta - tabOffset.value) / scrollBarHeight * (columnState.layoutInfo.viewportSize.height.toFloat() * (columnState.layoutInfo.totalItemsCount.toFloat() / itemsPerViewport))
                             )
                         }
@@ -235,4 +236,11 @@ fun ScrollBar(columnState: LazyListState, viewModel: PlayerViewModel, lazyColumn
             )
         }
     }
+}
+
+fun Color.increaseBrightness(brightness: Float): Color {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(this.toArgb(), hsl)
+    hsl[2] += brightness
+    return Color(ColorUtils.HSLToColor(hsl))
 }
