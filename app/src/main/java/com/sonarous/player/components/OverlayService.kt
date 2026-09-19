@@ -49,7 +49,8 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private lateinit var mediaController: MediaController
     private lateinit var songs: List<SongInfo>
-    private lateinit var albumArtworks: Map<String, ImageBitmap>
+    // Album bitmaps aren't transferred easily through the media controller so get the bitmaps from all music files
+    private lateinit var songAlbumCovers: Map<String, ImageBitmap>
     private val viewModel = PlayerViewModel()
     private var connectedMediaController by mutableStateOf(false)
 
@@ -64,12 +65,11 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
 
         // Fill albums
         getSongInfo(this).apply {
-            val tmpAlbumMap = mutableMapOf<String, ImageBitmap>()
-            second.forEach { (album, art) ->
-
-                tmpAlbumMap[album] = art
+            val tmpAlbumCoverMap = mutableMapOf<String, ImageBitmap>()
+            first.forEach { song ->
+                tmpAlbumCoverMap[song.name] = song.albumArt
             }
-            albumArtworks = tmpAlbumMap
+            songAlbumCovers = tmpAlbumCoverMap
         }
 
 
@@ -162,7 +162,7 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
                         durationMs?.toFloat() ?: 0f,
                         artist.toString(),
                         albumTitle.toString(),
-                        albumArtworks[albumTitle.toString()] ?: createBitmap(500, 500).asImageBitmap()
+                        songAlbumCovers[title.toString()] ?: createBitmap(500, 500).asImageBitmap()
                     )
                 )
             }
@@ -199,7 +199,7 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
             this,
             CHANNEL_ID
         ).build()
-//            .setContentTitle("UtilBar")
+//            .setContentTitle("")
 //            .setContentText("Overlay running")
 //            .setSmallIcon(android.R.drawable.ic_dialog_info)
 //            .build()

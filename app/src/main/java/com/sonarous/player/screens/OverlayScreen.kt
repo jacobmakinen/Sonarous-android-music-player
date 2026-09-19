@@ -61,7 +61,6 @@ class OverlayScreen(
     private val maxYDrag = 5f
     private val initYOffset = -50f
     private val maxXOffset = 70f
-//    private val hitboxDeltaMultiplier = 1f - mediaController.currentMediaItemIndex.toFloat() / songs.size.toFloat() Attempt to have window scroll approx match scrolled item position
 
     private val columnHeight = 170.dp
     private val songRowHeight = 80.dp
@@ -69,7 +68,7 @@ class OverlayScreen(
     private var yHitboxPointer by mutableFloatStateOf(initYOffset)
     private var yScroll by mutableFloatStateOf(0f)
     private var xPointer by mutableFloatStateOf(0f)  // Midpoint
-    private var selectedIndex by mutableIntStateOf(mediaController.currentMediaItemIndex)
+    private var selectedIndex by mutableIntStateOf(0)
 
     private val highlightedColor = Color.White // Color(0xFF010CFC) // Color(0xFF0354F8) // Color(0xFFC1FE02) // Color(0xFF01058C)
     private val lazyColumnState = LazyListState()
@@ -131,7 +130,6 @@ class OverlayScreen(
     @Composable
     private fun SongListOverlay(dragState: Draggable2DState, mediaController: MediaController, playSongCallback: () -> Unit) {
         val width = 400.dp
-//        val width = remember (yHitboxPointer) { if (yHitboxPointer > initYOffset) 400.dp else 400.dp }
         val height = remember (yHitboxPointer) { if (yHitboxPointer > initYOffset) columnHeight else 15.dp }
         val scope = rememberCoroutineScope()
 
