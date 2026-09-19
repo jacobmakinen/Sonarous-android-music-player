@@ -41,6 +41,6 @@ class PlayerListener(
     }
     override fun onPlayerError(error: PlaybackException) {
         super.onPlayerError(error)
-        Toast.makeText(applicationContext, "Unknown error occurred", Toast.LENGTH_LONG).show()
+        Toast.makeText(applicationContext, "${error.message} >> ${error.errorCodeName}", Toast.LENGTH_LONG).show()
     }
 }

@@ -39,40 +39,42 @@ fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
         val artistColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
         val durationColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
 
-        while (it.moveToNext()) {
-            val getName = it.getString(nameColumn)
-            val getFileName = it.getString(fileNameColumn)
-            val getAlbum = it.getString(albumColumn)
-            val getArtist = it.getString(artistColumn)
-            var getDuration = it.getDouble(durationColumn)
-            val getId = it.getLong(idColumn)
-            getDuration /= 1000
-            val duration = getDuration.toFloat()
-            val songUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, getId
-            )
-            val albumCover = try {
-                contentResolver.loadThumbnail(
-                    songUri,
-                    android.util.Size(500,500),
-                    null
-                ).asImageBitmap()
-            } catch (_: FileNotFoundException) {
-                albumCoverNotFoundBitmap
-            }
-            songs.add(
-                SongInfo(
-                    getName,
-                    getFileName,
-                    songUri,
-                    duration,
-                    getArtist,
-                    getAlbum,
-                    albumCover
+        it.apply {
+            while (moveToNext()) {
+                val getName = getString(nameColumn)
+                val getFileName = getString(fileNameColumn)
+                val getAlbum = getString(albumColumn)
+                val getArtist = getString(artistColumn)
+                val getDuration = getDouble(durationColumn) / 1000
+                val getId = getLong(idColumn)
+                val duration = getDuration.toFloat()
+                val songUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, getId
                 )
-            )
+                val albumCover = try {
+                    contentResolver.loadThumbnail(
+                        songUri,
+                        android.util.Size(500,500),
+                        null
+                    ).asImageBitmap()
+                } catch (_: FileNotFoundException) {
+                    albumCoverNotFoundBitmap
+                }
+                songs.add(
+                    SongInfo(
+                        getName,
+                        getFileName,
+                        songUri,
+                        duration,
+                        getArtist,
+                        getAlbum,
+                        albumCover
+                    )
+                )
+            }
         }
     }
+
     val albums = mutableListOf<AlbumInfo>()
     val addedAlbumNames = mutableListOf<String>()
     // Fill albums

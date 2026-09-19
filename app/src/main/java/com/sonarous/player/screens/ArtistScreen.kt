@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import com.sonarous.player.BackButtonRow
 import com.sonarous.player.MergeSort
@@ -67,21 +66,17 @@ fun ArtistScreen(
 @Composable
 fun ArtistSongs(
     artist: MutableState<String?>,
-    songInfo: List<SongInfo>,
+    songs: List<SongInfo>,
     viewModel: PlayerViewModel,
     mediaController: MediaController?,
     pagerState: PagerState,
     context: Context
 ) {
-    val artistSongs = getArtistSongs(artist.value!!, songInfo)
+    val artistSongs = getArtistSongs(artist.value!!, songs)
 
     val mediaItemList by remember {
         derivedStateOf {
-            val tmpList = mutableListOf<MediaItem>()
-            for (song in artistSongs) {
-                tmpList.add(MediaItem.fromUri(song.uri))
-            }
-            tmpList
+            getMediaItemList(artistSongs)
         }
     }
 

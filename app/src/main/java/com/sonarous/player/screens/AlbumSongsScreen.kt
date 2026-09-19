@@ -27,7 +27,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.navigation.NavController
 import com.sonarous.player.BackButtonRow
@@ -55,11 +54,7 @@ fun AlbumSongsScreen(
 
     val songMediaItems by remember(songInfo) {
         derivedStateOf {
-            val tmpList = mutableListOf<MediaItem>()
-            for (song in albumSongs) {
-                tmpList.add(MediaItem.fromUri(song.uri))
-            }
-            tmpList
+            getMediaItemList(albumSongs)
         }
     }
 

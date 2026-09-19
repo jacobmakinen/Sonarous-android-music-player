@@ -25,11 +25,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import com.sonarous.player.R
 import com.sonarous.player.ScrollBar
@@ -39,6 +42,26 @@ import com.sonarous.player.components.PlayerViewModel
 @Composable
 fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
     val lazyListSize = viewModel.queuedSongs.count()
+    val mediaItemList by remember (viewModel.queuedSongs) {
+        derivedStateOf {
+            getMediaItemList(viewModel.queuedSongs)
+        }
+    }
+
+    val playSongCallback = remember (viewModel.queuedSongs) {
+        { i: Int ->
+            mediaController?.clearMediaItems()
+            mediaController?.addMediaItems(mediaItemList)
+
+            mediaController?.prepare()
+            mediaController?.seekTo(i, 0L)
+            mediaController?.play()
+            viewModel.updateSongDuration((viewModel.queuedSongs[i].duration).toLong())
+            viewModel.songIndex = i
+            viewModel.playingFromSongsScreen = true
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +80,7 @@ fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
             state = viewModel.queuedSongsLazyColumnState,
         ) {
             items(lazyListSize) { i ->
-                QueuedSongRow(viewModel, i, mediaController)
+                QueuedSongRow(viewModel, i, mediaController, playSongCallback)
             }
         }
         ScrollBar(viewModel.queuedSongsLazyColumnState, viewModel, lazyListSize.toFloat(), 10.toFloat())
@@ -65,31 +88,18 @@ fun SongQueue(viewModel: PlayerViewModel, mediaController: MediaController?) {
 }
 
 @Composable
-fun QueuedSongRow(viewModel: PlayerViewModel, i: Int, mediaController: MediaController?) {
+fun QueuedSongRow(viewModel: PlayerViewModel, i: Int, mediaController: MediaController?, playedSongCallback: (Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(75.dp)
             .border(
-                width = (if (i == viewModel.songIndex) 0.dp else (-1).dp),
-                color = viewModel.iconColor,
+                width = 0.dp,
+                color = if (i == viewModel.songIndex) viewModel.iconColor else Color.Transparent,
                 shape = RoundedCornerShape(corner = CornerSize(10.dp))
             )
             .padding(5.dp)
-            .clickable(
-                onClick = {
-                    mediaController?.clearMediaItems()
-                    for (j in 0 until viewModel.queuedSongs.count()) {
-                        mediaController?.addMediaItem(MediaItem.fromUri(viewModel.queuedSongs[j].uri))
-                    }
-                    mediaController?.prepare()
-                    mediaController?.seekTo(i, 0L)
-                    mediaController?.play()
-                    viewModel.updateSongDuration((viewModel.queuedSongs[i].duration).toLong())
-                    viewModel.songIndex = i
-                    viewModel.playingFromSongsScreen = true
-                }
-            ),
+            .clickable(onClick = { playedSongCallback(i) }),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
