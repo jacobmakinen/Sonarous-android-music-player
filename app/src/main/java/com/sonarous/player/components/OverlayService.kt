@@ -9,7 +9,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.net.Uri
-import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.runtime.getValue
@@ -100,24 +99,22 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
     }
 
     private fun setMediaController() {
-        try {
-            controllerFuture = MediaController.Builder(
+        controllerFuture = MediaController.Builder(
+            this,
+            SessionToken(
                 this,
-                SessionToken(
-                    this,
-                    ComponentName(this, PlayerService::class.java)
-                )
-            ).buildAsync()
-            controllerFuture.addListener(
-                {
+                ComponentName(this, PlayerService::class.java)
+            )
+        ).buildAsync()
+        controllerFuture.addListener(
+            {
+                try {
                     mediaController = controllerFuture.get()
                     connectedMediaController = true
-                },
-                MoreExecutors.directExecutor()
-            )
-        } catch (_: java.util.concurrent.CancellationException) {
-            Log.e("SonarousLogs", "Get media session coroutine was cancelled")
-        }
+                } catch (_: Exception) {  }
+            },
+            MoreExecutors.directExecutor()
+        )
     }
 
     private fun createOverlay() {

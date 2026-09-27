@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import androidx.annotation.OptIn
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.media3.common.util.UnstableApi
-import java.io.FileNotFoundException
 
 @OptIn(UnstableApi::class)
 fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
@@ -57,7 +56,7 @@ fun getSongInfo(context: Context): Pair<List<SongInfo>, List<AlbumInfo>> {
                         android.util.Size(500,500),
                         null
                     ).asImageBitmap()
-                } catch (_: FileNotFoundException) {
+                } catch (_: Exception) {
                     albumCoverNotFoundBitmap
                 }
                 songs.add(
