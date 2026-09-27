@@ -130,7 +130,7 @@ class OverlayScreen(
     @Composable
     private fun SongListOverlay(dragState: Draggable2DState, mediaController: MediaController, playSongCallback: () -> Unit) {
         val width = 400.dp
-        val height = remember (yHitboxPointer) { if (yHitboxPointer > initYOffset) columnHeight else 15.dp }
+        val height = remember (yHitboxPointer) { if (yHitboxPointer > initYOffset) columnHeight else 20.dp } // 15.dp
         val scope = rememberCoroutineScope()
 
         Box(modifier = Modifier.size(width, height)) {
