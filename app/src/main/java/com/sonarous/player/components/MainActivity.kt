@@ -346,7 +346,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onStop() {
         super.onStop()
-        if (viewModel.showOverlay) {
+        if (viewModel.showOverlay && !isChangingConfigurations) {
             val filter = IntentFilter(OverlayService.ACTION_UPDATE_INDEX)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -363,15 +363,20 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        if (isUpdateReceiverRegistered) {
-            unregisterReceiver(songIndexReceiver)
-            isUpdateReceiverRegistered = false
+        if (!isChangingConfigurations) {
+            if (isUpdateReceiverRegistered) {
+                unregisterReceiver(songIndexReceiver)
+                isUpdateReceiverRegistered = false
+            }
+
+            MediaController.releaseFuture(controllerFuture)
+            // Tie the services to the main activity to prevent memory leaks
+            stopService(Intent(this, PlayerService::class.java))
+            if (viewModel.showOverlay) {
+                stopService(Intent(this, OverlayService::class.java))
+            }
+            contentResolver.unregisterContentObserver(observer)
         }
-        contentResolver.unregisterContentObserver(observer)
-        MediaController.releaseFuture(controllerFuture)
-        // Tie the services to the main activity to prevent memory leaks
-        stopService(Intent(this, PlayerService::class.java))
-        if (viewModel.showOverlay) stopService(Intent(this, OverlayService::class.java))
         super.onDestroy()
     }
 }
