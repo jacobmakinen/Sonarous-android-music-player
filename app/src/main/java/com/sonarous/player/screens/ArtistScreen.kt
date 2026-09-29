@@ -169,11 +169,11 @@ fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist
         if (viewModel.showSearchBar) {
             SearchBar(
                 searchText,
+                viewModel,
                 Modifier
                     .padding(5.dp)
                     .border(0.dp, Color.White)
                     .padding(start = 10.dp),
-                Color(0x00000000)
             )
         } else {
             searchText.value = ""

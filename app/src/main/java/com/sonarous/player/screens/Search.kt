@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -21,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.sonarous.player.AlbumInfo
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
+import com.sonarous.player.components.PlayerViewModel
 
 object Search {
     fun searchSongs(songs: List<SongInfo>, searchText: String): List<SongInfo> {
@@ -90,12 +92,11 @@ object Search {
 }
 
 @Composable
-fun SearchBar(searchText: MutableState<String>, modifier: Modifier = Modifier, bgColor: Color = Color.Black) {
+fun SearchBar(searchText: MutableState<String>, viewmodel: PlayerViewModel, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .background(bgColor, RoundedCornerShape(100f)),
+            .height(50.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -105,23 +106,25 @@ fun SearchBar(searchText: MutableState<String>, modifier: Modifier = Modifier, b
             modifier = Modifier.size(25.dp),
             painter = painterResource(R.drawable.search),
             contentDescription = null,
-            tint = Color.White
+            tint = viewmodel.iconColor
         )
 
         BasicTextField(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(0.9f)
+                .focusRequester(focusRequester),
+            keyboardOptions = KeyboardOptions(showKeyboardOnFocus = true),
             value = inputText,
             onValueChange = {
                 inputText = it
                 searchText.value = it
             },
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(0.7f),
             textStyle = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White
+                color = viewmodel.iconColor
             ),
-            cursorBrush = SolidColor(Color.White),
+            cursorBrush = SolidColor(viewmodel.iconColor),
             decorationBox = { innerTextField ->
                 Column(
                     modifier = Modifier
@@ -133,10 +136,10 @@ fun SearchBar(searchText: MutableState<String>, modifier: Modifier = Modifier, b
                     androidx.compose.foundation.Canvas(
                         modifier = Modifier
                             .fillMaxHeight(0.5f)
-                            .fillMaxWidth(0.7f) // .5f
+                            .fillMaxWidth()
                     ) {
                         drawLine(
-                            color = Color.White,
+                            color = viewmodel.iconColor,
                             start = Offset(0f, 0f),
                             end = Offset(
                                 x = size.width,
@@ -146,6 +149,24 @@ fun SearchBar(searchText: MutableState<String>, modifier: Modifier = Modifier, b
                     }
                 }
             },
+        )
+        ClearSearchButton(viewmodel) {
+            inputText = ""
+            searchText.value = ""
+        }
+    }
+}
+
+@Composable
+fun ClearSearchButton(viewmodel: PlayerViewModel, clearTextCallback: () -> Unit) {
+    IconButton(
+        modifier = Modifier.size(25.dp),
+        onClick = { clearTextCallback() }
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.clear),
+            contentDescription = null,
+            tint = viewmodel.iconColor
         )
     }
 }
