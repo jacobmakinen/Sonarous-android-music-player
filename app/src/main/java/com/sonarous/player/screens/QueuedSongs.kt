@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -96,7 +94,6 @@ fun QueuedSongRow(viewModel: PlayerViewModel, i: Int, mediaController: MediaCont
             .border(
                 width = 0.dp,
                 color = if (i == viewModel.songIndex) viewModel.iconColor else Color.Transparent,
-                shape = RoundedCornerShape(corner = CornerSize(10.dp))
             )
             .padding(5.dp)
             .clickable(onClick = { playedSongCallback(i) }),

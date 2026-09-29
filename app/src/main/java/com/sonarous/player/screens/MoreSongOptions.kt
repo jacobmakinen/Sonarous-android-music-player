@@ -355,13 +355,16 @@ fun addSongToQueueLogic(
     } else {
         viewModel.queueingSongs = true
         // Remove all songs except the currently playing one
-        mediaController?.removeMediaItems(
-            viewModel.songIndex + 1,
-            viewModel.queuedSongs.size
-        )
-        mediaController?.removeMediaItems(0, viewModel.songIndex)
-        viewModel.queuedSongs.removeAll { song ->
-            song != viewModel.queuedSongs[viewModel.songIndex]
+        if (viewModel.queuedSongs.isNotEmpty()) {
+            mediaController?.removeMediaItems(
+                viewModel.songIndex + 1,
+                viewModel.queuedSongs.size
+            )
+            mediaController?.removeMediaItems(0, viewModel.songIndex)
+
+            viewModel.queuedSongs.removeAll { song ->
+                song != viewModel.queuedSongs[viewModel.songIndex]
+            }
         }
         viewModel.queuedSongs.add(song)
         mediaController?.addMediaItem(MediaItem.fromUri(song.uri))
