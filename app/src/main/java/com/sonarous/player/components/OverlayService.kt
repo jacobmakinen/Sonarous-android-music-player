@@ -1,5 +1,3 @@
-@file:OptIn(UnstableApi::class)
-
 package com.sonarous.player.components
 
 import android.app.Notification
@@ -11,6 +9,7 @@ import android.graphics.PixelFormat
 import android.net.Uri
 import android.view.Gravity
 import android.view.WindowManager
+import androidx.annotation.OptIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +53,8 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
     private var connectedMediaController by mutableStateOf(false)
 
     override fun onCreate() {
+        startForeground(NOTIFICATION_ID, createNotification())
+
         savedStateRegistryController.performAttach()
         savedStateRegistryController.performRestore(null)
 
@@ -78,11 +79,6 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        startForeground(
-            NOTIFICATION_ID,
-            createNotification()
-        )
-
         if (overlayView == null) {
             createOverlay()
         }
@@ -98,6 +94,7 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
         sendBroadcast(intent)
     }
 
+    @OptIn(UnstableApi::class)
     private fun setMediaController() {
         controllerFuture = MediaController.Builder(
             this,
