@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -70,7 +71,7 @@ class OverlayScreen(
     private var xPointer by mutableFloatStateOf(0f)  // Midpoint
     private var selectedIndex by mutableIntStateOf(0)
 
-    private val highlightedColor = Color.White // Color(0xFF010CFC) // Color(0xFF0354F8) // Color(0xFFC1FE02) // Color(0xFF01058C)
+    private val highlightedColor = Color.White
     private val lazyColumnState = LazyListState()
 
     @Composable
@@ -84,7 +85,7 @@ class OverlayScreen(
 
         val playSongCallback = remember {
             {
-                overlayService.updateActivityPlayingIndex(selectedIndex + 1)
+                overlayService.updateActivityPlayingIndex(if (selectedIndex != 0) selectedIndex + 1 else selectedIndex)
                 mediaController.clearMediaItems()
                 mediaController.addMediaItems(mediaItemList)
                 mediaController.prepare()
@@ -93,28 +94,30 @@ class OverlayScreen(
             }
         }
 
-        val dragState = rememberDraggable2DState { delta ->
-            if (yHitboxPointer < maxYDrag) {
-                yHitboxPointer = (yHitboxPointer + delta.y).coerceIn(minimumValue = -50f, maximumValue = maxYDrag)
-            // Lock yScrolling if element has x offset and primary delta is not y
-            } else if (xPointer == 0f && delta.y.absoluteValue > delta.x.absoluteValue) {
-                yScroll = (yScroll + delta.y).coerceIn(0f, lazyColumnState.layoutInfo.viewportSize.height.toFloat())
-                val newIndex = (yScroll / lazyColumnState.layoutInfo.viewportSize.height.toFloat() * (songs.size - 1)).roundToInt()
-
-                if (newIndex != selectedIndex) {
-                    selectedIndex = newIndex
-                    scope.launch { lazyColumnState.animateScrollToItem(selectedIndex) }
-                }
-            }
-            // Only allow x movement when hitbox is at max offset and the delta is large enough [only consider delta strength at 0 offset]
-            if (yHitboxPointer >= maxYDrag && xPointer == 0f && delta.x > 2f) {
-                xPointer = (xPointer + delta.x).coerceIn(0f, maxXOffset)
-            } else if (yHitboxPointer >= maxYDrag && xPointer != 0f) {
-                xPointer = (xPointer + delta.x).coerceIn(0f, maxXOffset)
-            }
-        }
+        val dragState = rememberDraggable2DState { delta -> dragStateCallback(scope, delta) }
 
         SongListOverlay(dragState, mediaController, playSongCallback)
+    }
+
+    private fun dragStateCallback(scope: CoroutineScope, delta: Offset) {
+        if (yHitboxPointer < maxYDrag) {
+            yHitboxPointer = (yHitboxPointer + delta.y).coerceIn(minimumValue = -50f, maximumValue = maxYDrag)
+            // Lock yScrolling if element has x offset and primary delta is not y
+        } else if (xPointer == 0f && delta.y.absoluteValue > delta.x.absoluteValue) {
+            yScroll = (yScroll + delta.y).coerceIn(0f, lazyColumnState.layoutInfo.viewportSize.height.toFloat())
+            val newIndex = (yScroll / lazyColumnState.layoutInfo.viewportSize.height.toFloat() * (songs.size - 1)).roundToInt()
+
+            if (newIndex != selectedIndex) {
+                selectedIndex = newIndex
+                scope.launch { lazyColumnState.animateScrollToItem(selectedIndex) }
+            }
+        }
+        // Only allow x movement when hitbox is at max offset and the delta is large enough [only consider delta strength at 0 offset]
+        if (yHitboxPointer >= maxYDrag && xPointer == 0f && delta.x > 2f) {
+            xPointer = (xPointer + delta.x).coerceIn(0f, maxXOffset)
+        } else if (yHitboxPointer >= maxYDrag && xPointer != 0f) {
+            xPointer = (xPointer + delta.x).coerceIn(0f, maxXOffset)
+        }
     }
 
     private fun resetPointers(scope: CoroutineScope) {
