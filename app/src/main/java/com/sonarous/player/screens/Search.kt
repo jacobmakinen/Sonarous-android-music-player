@@ -1,6 +1,5 @@
 package com.sonarous.player.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -92,7 +90,7 @@ object Search {
 }
 
 @Composable
-fun SearchBar(searchText: MutableState<String>, viewmodel: PlayerViewModel, modifier: Modifier = Modifier) {
+fun SearchBar(searchText: MutableState<String>, viewModel: PlayerViewModel, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -106,14 +104,13 @@ fun SearchBar(searchText: MutableState<String>, viewmodel: PlayerViewModel, modi
             modifier = Modifier.size(25.dp),
             painter = painterResource(R.drawable.search),
             contentDescription = null,
-            tint = viewmodel.iconColor
+            tint = viewModel.iconColor
         )
 
         BasicTextField(
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(0.9f)
-                .focusRequester(focusRequester),
+                .fillMaxWidth(0.9f),
             keyboardOptions = KeyboardOptions(showKeyboardOnFocus = true),
             value = inputText,
             onValueChange = {
@@ -122,9 +119,9 @@ fun SearchBar(searchText: MutableState<String>, viewmodel: PlayerViewModel, modi
             },
             textStyle = TextStyle(
                 fontSize = 18.sp,
-                color = viewmodel.iconColor
+                color = viewModel.iconColor
             ),
-            cursorBrush = SolidColor(viewmodel.iconColor),
+            cursorBrush = SolidColor(viewModel.iconColor),
             decorationBox = { innerTextField ->
                 Column(
                     modifier = Modifier
@@ -139,7 +136,7 @@ fun SearchBar(searchText: MutableState<String>, viewmodel: PlayerViewModel, modi
                             .fillMaxWidth()
                     ) {
                         drawLine(
-                            color = viewmodel.iconColor,
+                            color = viewModel.iconColor,
                             start = Offset(0f, 0f),
                             end = Offset(
                                 x = size.width,
@@ -150,7 +147,7 @@ fun SearchBar(searchText: MutableState<String>, viewmodel: PlayerViewModel, modi
                 }
             },
         )
-        ClearSearchButton(viewmodel) {
+        ClearSearchButton(viewModel) {
             inputText = ""
             searchText.value = ""
         }

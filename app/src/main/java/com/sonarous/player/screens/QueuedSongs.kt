@@ -91,6 +91,7 @@ fun QueuedSongRow(viewModel: PlayerViewModel, i: Int, mediaController: MediaCont
         modifier = Modifier
             .fillMaxWidth()
             .height(75.dp)
+            .padding(horizontal = 4.dp)
             .border(
                 width = 0.dp,
                 color = if (i == viewModel.songIndex) viewModel.iconColor else Color.Transparent,

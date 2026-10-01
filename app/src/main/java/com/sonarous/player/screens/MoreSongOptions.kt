@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -21,27 +22,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
-import com.sonarous.player.Text
-import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
 import com.sonarous.player.SongInfo
+import com.sonarous.player.Text
+import com.sonarous.player.components.PlayerViewModel
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
@@ -109,6 +114,17 @@ fun EditSongTagScreen(viewModel: PlayerViewModel, context: Context) {
     SongTagTextRow(albumName, viewModel, "Album: ")
     SongTagTextRow(artistName, viewModel, "Artist: ")
     Spacer(Modifier.height(15.dp))
+    ApplySongTags(viewModel, songTitle, albumName, artistName, context, songUri)
+}
+
+@Composable
+fun ApplySongTags(
+    viewModel: PlayerViewModel,
+    songTitle: MutableState<String>,
+    albumName: MutableState<String>,
+    artistName: MutableState<String>,
+    context: Context, songUri: Uri
+) {
     TextButton(
         onClick = {
             viewModel.editSongTags = arrayOf(
@@ -147,10 +163,39 @@ fun SongTagTextRow(value: MutableState<String>, viewModel: PlayerViewModel, text
             horizontalAlignment = Alignment.Start
         ) {
             Text(text, viewModel = viewModel)
-            TextField(
+            BasicTextField(
                 value = value.value,
                 onValueChange = {
                     value.value = it
+                },
+                textStyle = TextStyle(
+                    fontSize = 18.sp,
+                    color = viewModel.iconColor
+                ),
+                cursorBrush = SolidColor(viewModel.iconColor),
+                decorationBox = { innerTextField ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        innerTextField()
+                        androidx.compose.foundation.Canvas(
+                            modifier = Modifier
+                                .fillMaxHeight(0.5f)
+                                .fillMaxWidth()
+                        ) {
+                            drawLine(
+                                color = viewModel.iconColor,
+                                start = Offset(0f, 0f),
+                                end = Offset(
+                                    x = size.width,
+                                    0f
+                                )
+                            )
+                        }
+                    }
                 },
             )
         }
@@ -190,7 +235,8 @@ fun editSongTag(
                 input.copyTo(output)
             }
         } ?: throw IOException("Failed to open output stream for $songUri")
-
+    } catch (e: IOException) {
+        Log.e("SonarousLogs", "${e.message}")
     } finally {
         tempFile.delete()
     }
