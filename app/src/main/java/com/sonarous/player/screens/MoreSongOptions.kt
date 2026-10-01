@@ -390,13 +390,10 @@ fun AddSongToQueue(viewModel: PlayerViewModel, mediaController: MediaController?
     }
 }
 
-fun addSongToQueueLogic(
-    mediaController: MediaController?,
-    song: SongInfo,
-    viewModel: PlayerViewModel,
-) {
+fun addSongToQueueLogic(mediaController: MediaController?, song: SongInfo, viewModel: PlayerViewModel) {
     if (viewModel.queueingSongs) {
-        mediaController?.addMediaItem(MediaItem.fromUri(song.uri))
+        val metadata = getMediaItemList(listOf(song)).first().mediaMetadata
+        mediaController?.addMediaItem(MediaItem.Builder().setUri(song.uri).setMediaMetadata(metadata).build())
         viewModel.queuedSongs.add(song)
     } else {
         viewModel.queueingSongs = true
@@ -413,7 +410,8 @@ fun addSongToQueueLogic(
             }
         }
         viewModel.queuedSongs.add(song)
-        mediaController?.addMediaItem(MediaItem.fromUri(song.uri))
+        val metadata = getMediaItemList(listOf(song)).first().mediaMetadata
+        mediaController?.addMediaItem(MediaItem.Builder().setUri(song.uri).setMediaMetadata(metadata).build())
         viewModel.songIndex = 0
     }
     viewModel.showMoreSongOptions = false
