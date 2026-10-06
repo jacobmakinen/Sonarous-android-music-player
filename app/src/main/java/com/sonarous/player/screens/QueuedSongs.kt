@@ -101,7 +101,7 @@ fun QueuedSongRow(viewModel: PlayerViewModel, i: Int, mediaController: MediaCont
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(Modifier.fillMaxWidth(0.77f)) {
+        Row(Modifier.fillMaxWidth(0.8f)) {
             AlbumCover(viewModel.queuedSongs[i], 60.dp)
             Spacer(modifier = Modifier.width(10.dp))
             SongTextColumn(viewModel.queuedSongs[i], viewModel)
