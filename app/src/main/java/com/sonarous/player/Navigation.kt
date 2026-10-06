@@ -40,6 +40,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -541,7 +542,14 @@ fun PortraitTabRow(
             state = pagerState
         ) { currentPage ->
             when (currentPage) {
-                0 -> SongQueue(viewModel, mediaController)
+                0 -> {
+                    SongQueue(viewModel, mediaController)
+                    LaunchedEffect(Unit) {
+                        if (viewModel.queuedSongs.isNotEmpty()) {
+                            viewModel.queuedSongsLazyColumnState.animateScrollToItem(viewModel.songIndex)
+                        }
+                    }
+                }
                 1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
