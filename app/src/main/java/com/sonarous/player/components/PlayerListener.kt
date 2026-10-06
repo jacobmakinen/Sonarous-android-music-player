@@ -3,6 +3,7 @@ package com.sonarous.player.components
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.OptIn
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -18,25 +19,17 @@ class PlayerListener(
     @OptIn(UnstableApi::class)
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         super.onIsPlayingChanged(isPlaying)
-        viewModel.isPlaying = !viewModel.isPlaying
+        viewModel.isPlaying = isPlaying
     }
 
     @OptIn(UnstableApi::class)
-    override fun onMediaItemTransition(
-        mediaItem: MediaItem?,
-        reason: Int
-    ) {
+    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         super.onMediaItemTransition(mediaItem, reason)
-        if (mediaController == null) { return }
+        if (mediaController == null) return
 
-        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
-            viewModel.incrementSongIterator(1)
-        } else if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
-            if (mediaController.currentMediaItemIndex > viewModel.songIndex) {
-                viewModel.incrementSongIterator(1)
-            } else {
-                viewModel.incrementSongIterator(-1)
-            }
+        val index = mediaController.currentMediaItemIndex
+        if (index != C.INDEX_UNSET) {
+            viewModel.songIndex = index
         }
     }
     override fun onPlayerError(error: PlaybackException) {
