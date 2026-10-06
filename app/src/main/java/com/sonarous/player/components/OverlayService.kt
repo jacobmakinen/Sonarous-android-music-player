@@ -67,7 +67,9 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
         getSongInfo(this).apply {
             val tmpAlbumCoverMap = mutableMapOf<String, ImageBitmap>()
             first.forEach { song ->
-                tmpAlbumCoverMap[song.name] = song.albumArt
+                song.apply {
+                    tmpAlbumCoverMap["$name$artist$album"] = song.albumArt
+                }
             }
             songAlbumCovers = tmpAlbumCoverMap
         }
@@ -156,7 +158,7 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner {
                         durationMs?.toFloat() ?: 0f,
                         artist.toString(),
                         albumTitle.toString(),
-                        songAlbumCovers[title.toString()] ?: createBitmap(500, 500).asImageBitmap()
+                        songAlbumCovers["$title$artist$albumTitle"] ?: createBitmap(500, 500).asImageBitmap()
                     )
                 )
             }
