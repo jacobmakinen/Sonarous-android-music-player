@@ -130,27 +130,13 @@ class PlayerViewModel : ViewModel() {
     fun updateColor(choice: String, color: Color?) {
         if (color != null) {
             when (choice) {
-                "background" -> {
-                    backgroundColor = color
-                }
-                "text" -> {
-                    textColor = color
-                }
-                "icon" -> {
-                    iconColor = color
-                }
-                "eqLevel" -> {
-                    visualizerLevelColor = color
-                }
-                "eqText" -> {
-                    visualizerTextColor = color
-                }
-                "sliderThumb" -> {
-                    sliderThumbColor = color
-                }
-                "sliderTrack" -> {
-                    sliderTrackColor = color
-                }
+                "background" -> backgroundColor = color
+                "text" -> textColor = color
+                "icon" -> iconColor = color
+                "eqLevel" -> visualizerLevelColor = color
+                "eqText" -> visualizerTextColor = color
+                "sliderThumb" -> sliderThumbColor = color
+                "sliderTrack" -> sliderTrackColor = color
             }
         }
     }

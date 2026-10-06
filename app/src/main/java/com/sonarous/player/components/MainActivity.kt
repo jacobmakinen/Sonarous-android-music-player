@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
         // --------------------- UI --------------------- //
         lifecycleScope.launch {
             val audioProcessor = PlayerService.AudioVisualizerProcessor
-            audioProcessor.visualiserIsOn = true
+            audioProcessor.isVisualiserOn = true
             viewModel.mediaInfoPair = getMediaInfo(applicationContext, requestPermissionLauncher)
 
             val determinedOverlayRequest = mutableStateOf(false)
@@ -206,10 +206,10 @@ class MainActivity : ComponentActivity() {
                 }
                 LaunchedEffect(viewModel.thermalStatus) {
                     if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_EMERGENCY) {
-                        audioProcessor.visualiserIsOn = false
+                        audioProcessor.isVisualiserOn = false
                     } else if (viewModel.thermalStatus <= PowerManager.THERMAL_STATUS_SEVERE) {
                         // TODO - Should check to see if user wants visualizer hidden
-                        audioProcessor.visualiserIsOn = true
+                        audioProcessor.isVisualiserOn = true
                     }
                 }
             }
@@ -339,7 +339,7 @@ class MainActivity : ComponentActivity() {
             isUpdateReceiverRegistered = false
         }
 
-        PlayerService.AudioVisualizerProcessor.visualiserIsOn = true
+        PlayerService.AudioVisualizerProcessor.isVisualiserOn = true
         stopService(Intent(this, OverlayService::class.java))
     }
 
@@ -359,7 +359,7 @@ class MainActivity : ComponentActivity() {
             startForegroundService(Intent(this, OverlayService::class.java))
         }
 
-        PlayerService.AudioVisualizerProcessor.visualiserIsOn = false
+        PlayerService.AudioVisualizerProcessor.isVisualiserOn = false
     }
 
     override fun onDestroy() {

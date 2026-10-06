@@ -15,7 +15,6 @@ import androidx.media3.exoplayer.RenderersFactory
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
-import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -32,6 +31,7 @@ import kotlinx.coroutines.launch
 import org.jtransforms.fft.DoubleFFT_1D
 import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.math.cos
 import kotlin.math.sqrt
 
@@ -104,16 +104,6 @@ class PlayerService : MediaSessionService() {
                     eventListener,
                     out
                 )
-                out.add(
-                    MediaCodecAudioRenderer(
-                        context,
-                        mediaCodecSelector,
-                        enableDecoderFallback,
-                        eventHandler,
-                        eventListener,
-                        myAudioSink
-                    )
-                )
             }
         }
     }
@@ -125,9 +115,9 @@ class PlayerService : MediaSessionService() {
         val visualizerStateFlow: StateFlow<VisualiserData> = _visualizerStateFlow.asStateFlow()
         var speed = 1f
         var pitch = 1f
-        var visualiserIsOn = false
+        var isVisualiserOn = false
         private val sonicAudioProcessor = SonicAudioProcessor()
-        private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+        private var outputBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder())
         // 512 as it's a power of 2 and isn't too laggy
         private const val ARRAY_SIZE = 512
         private var fft = DoubleFFT_1D(ARRAY_SIZE.toLong())
@@ -152,7 +142,7 @@ class PlayerService : MediaSessionService() {
             return inputAudioFormat
         }
 
-        override fun isActive(): Boolean = true
+        override fun isActive(): Boolean = isVisualiserOn || usingSonicProcessor
 
         override fun queueInput(inputBuffer: ByteBuffer) {
             if (!inputBuffer.hasRemaining()) {
@@ -161,8 +151,23 @@ class PlayerService : MediaSessionService() {
             if (usingSonicProcessor) {
                 sonicAudioProcessor.queueInput(inputBuffer)
             } else {
-                outputBuffer = inputBuffer
+                outputBuffer = copyBuffer(inputBuffer)
             }
+        }
+
+        private fun copyBuffer(inputBuffer: ByteBuffer): ByteBuffer {
+            val size = inputBuffer.remaining()
+
+            if (outputBuffer.capacity() < size) {
+                outputBuffer = ByteBuffer.allocateDirect(size)
+                    .order(ByteOrder.nativeOrder())
+            } else {
+                outputBuffer.clear()
+            }
+
+            outputBuffer.put(inputBuffer)
+            outputBuffer.flip()
+            return outputBuffer
         }
 
         override fun queueEndOfStream() {
@@ -176,7 +181,7 @@ class PlayerService : MediaSessionService() {
             } else {
                 outputBuffer
             }
-            if (visualiserIsOn) {
+            if (isVisualiserOn) {
                 processVisualizerData(soundBuffer)
             }
             //================================= End of visualizer processing =================================//
@@ -223,13 +228,13 @@ class PlayerService : MediaSessionService() {
          */
         private fun getFftData(inputBuffer: ByteBuffer, fftArray: DoubleArray): Double {
             val shortBuffer = inputBuffer.asShortBuffer()
-            var buffer: Short
+            var shortValue: Short
             var bufferVolume = 0.0
             for (i in 0 until ARRAY_SIZE) {
                 try {
-                    buffer = shortBuffer.get()
-                    bufferVolume += (buffer * buffer).toDouble() // To cancel out the - & + values
-                    fftArray[i] = buffer / 32768.0 // Normalisation
+                    shortValue = shortBuffer.get()
+                    bufferVolume += (shortValue * shortValue).toDouble() // To cancel out the - & + values
+                    fftArray[i] = shortValue / 32768.0 // Normalisation
                 } catch (_: BufferUnderflowException) {
                     fftArray[i] = 0.0
                     bufferVolume += 0.0
