@@ -693,7 +693,7 @@ fun SeekBar(
         var currentSongPosition by remember { mutableFloatStateOf(viewModel.currentSongPosition) }
         var isSeeking by remember { mutableStateOf(false) }
         Text(
-            getSongPositionString(viewModel, isSeeking, currentSongPosition),
+            getSongPositionString(currentSongPosition),
             viewModel = viewModel
         )
         Slider(
@@ -729,16 +729,9 @@ fun SeekBar(
     }
 }
 
-fun getSongPositionString(viewModel: PlayerViewModel, isSeeking: Boolean, currentSongPosition: Float): String {
-    var seconds: String
-    var minutes: String
-    if (!isSeeking) {
-        minutes = "${(viewModel.currentSongPosition / 60).toInt()}:"
-        seconds = "${(viewModel.currentSongPosition % 60).toInt()}"
-    } else {
-        minutes = "${(currentSongPosition / 60).toInt()}:"
-        seconds = "${(currentSongPosition % 60).toInt()}"
-    }
+fun getSongPositionString(currentSongPosition: Float): String {
+    val minutes = "${(currentSongPosition / 60).toInt()}:"
+    var seconds = "${(currentSongPosition % 60).toInt()}"
     while (seconds.length < 2) {
         seconds = "0$seconds"
     }
