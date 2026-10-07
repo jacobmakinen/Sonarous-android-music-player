@@ -4,6 +4,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
+import android.os.Process
+import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.SonicAudioProcessor
@@ -129,6 +131,12 @@ class PlayerService : MediaSessionService() {
         private val emissionScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
         override fun configure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
+            try {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
+            } catch (e: SecurityException) {
+                e.printStackTrace()
+                Log.e("SonarousLogs", "${e.message}")
+            }
             if (usingSonicProcessor) {
                 sonicAudioProcessor.configure(inputAudioFormat)
                 // Factors must not be 1 or 0 -> crash
@@ -151,7 +159,7 @@ class PlayerService : MediaSessionService() {
             if (usingSonicProcessor) {
                 sonicAudioProcessor.queueInput(inputBuffer)
             } else {
-                outputBuffer = copyBuffer(inputBuffer)
+                outputBuffer = inputBuffer // copyBuffer(inputBuffer)
             }
         }
 
@@ -184,7 +192,6 @@ class PlayerService : MediaSessionService() {
             if (isVisualiserOn) {
                 processVisualizerData(soundBuffer)
             }
-            //================================= End of visualizer processing =================================//
             outputBuffer = AudioProcessor.EMPTY_BUFFER
             if (endOfStreamQueued) {
                 isEnded = true
