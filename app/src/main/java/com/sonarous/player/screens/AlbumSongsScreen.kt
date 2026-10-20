@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.session.MediaController
 import androidx.navigation.NavController
 import com.sonarous.player.BackButtonRow
+import com.sonarous.player.Screens
 import com.sonarous.player.ScrollBar
 import com.sonarous.player.SongInfo
 import com.sonarous.player.components.PlayerViewModel
@@ -72,7 +73,11 @@ fun AlbumSongsScreen(
                 viewModel.songIndex = i
                 viewModel.updateSongDuration((albumSongs[i].duration).toLong())
                 viewModel.playingFromSongsScreen = false // Shows details from albums list
-                navController.navigate("pager")
+                navController.navigate(Screens.PAGER.name) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                }
                 viewModel.showSearchBar = false
             }
         }

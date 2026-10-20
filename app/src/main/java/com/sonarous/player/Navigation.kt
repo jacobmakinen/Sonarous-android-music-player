@@ -64,7 +64,8 @@ import com.sonarous.player.components.PlayerService
 import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.screens.AlbumScreen
 import com.sonarous.player.screens.AlbumSongsScreen
-import com.sonarous.player.screens.ArtistScreen
+import com.sonarous.player.screens.ArtistSongs
+import com.sonarous.player.screens.Artists
 import com.sonarous.player.screens.HorizontalColorPicker
 import com.sonarous.player.screens.HorizontalThemeChange
 import com.sonarous.player.screens.InfoScreen
@@ -91,7 +92,7 @@ fun NavHost(
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "pager",
+        startDestination = Screens.PAGER.name,
         modifier = Modifier
             .background(viewModel.backgroundColor),
         enterTransition = { fadeIn(animationSpec = tween(300)) },
@@ -99,10 +100,10 @@ fun NavHost(
         popEnterTransition = { fadeIn(animationSpec = tween(300)) },
         popExitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
-        composable(route = "pager") {
+        composable(route = Screens.PAGER.name) {
             Pager(mediaController, audioProcessor, viewModel, songInfo, albumInfo, navController, context)
         }
-        composable(route = "album_songs_screen") {
+        composable(route = Screens.ALBUM_SONGS.name) {
             AlbumSongsScreen(
                 viewModel.selectedAlbum,
                 songInfo,
@@ -112,28 +113,34 @@ fun NavHost(
                 context
             )
         }
-        composable(route = "settings") {
+        composable(route = Screens.SETTINGS.name) {
             Settings(navController, viewModel)
         }
-        composable(route = "theme_change") {
+        composable(route = Screens.THEME_CHANGE.name) {
             if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 PortraitThemeChange(viewModel, navController, context)
             } else {
                 HorizontalThemeChange(viewModel, navController, context)
             }
         }
-        composable(route = "color_picker") {
+        composable(route = Screens.COLOR_PICKER.name) {
             if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 PortraitColorPicker(viewModel, navController)
             } else {
                 HorizontalColorPicker(viewModel, navController)
             }
         }
-
-        composable(route = "info_screen") {
+        composable(route = Screens.INFO_SCREEN.name) {
             InfoScreen(viewModel, navController)
         }
+        composable(route = Screens.ARTIST_SONGS.name) {
+            ArtistSongs(viewModel.selectedArtist, songInfo, viewModel, mediaController, context, navController)
+        }
     }
+}
+
+enum class Screens {
+    PAGER, ALBUM_SONGS, SETTINGS, THEME_CHANGE, COLOR_PICKER, INFO_SCREEN, ARTIST_SONGS
 }
 
 @ExperimentalFoundationApi
@@ -164,7 +171,7 @@ fun Pager(
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,
     )
-    val fetchStrategy = LazyListPrefetchStrategy(50) // May not be helpful  ¯\(`_`)/¯
+    val fetchStrategy = LazyListPrefetchStrategy(50) // May not be helpful
     viewModel.queuedSongsLazyColumnState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0,
         initialFirstVisibleItemScrollOffset = 0,
@@ -340,7 +347,7 @@ fun LandscapeTabRow(
                                 },
                                 onClick = {
                                     dropDownMenu = false
-                                    navController.navigate("settings")
+                                    navController.navigate(Screens.SETTINGS.name)
                                 }
                             )
                             DropdownMenuItem(
@@ -352,7 +359,7 @@ fun LandscapeTabRow(
                                 },
                                 onClick = {
                                     dropDownMenu = false
-                                    navController.navigate("info_screen")
+                                    navController.navigate(Screens.INFO_SCREEN.name)
                                 }
                             )
                         }
@@ -367,10 +374,10 @@ fun LandscapeTabRow(
         ) { currentPage ->
             when (currentPage) {
                 0 -> SongQueue(viewModel, mediaController)
-                1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo)
+                1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo, navController)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController, 6)
-                4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
+                4 -> Artists(viewModel, songInfo, navController)
             }
         }
     }
@@ -516,7 +523,7 @@ fun PortraitTabRow(
                                 },
                                 onClick = {
                                     dropDownMenu = false
-                                    navController.navigate("settings")
+                                    navController.navigate(Screens.SETTINGS.name)
                                 }
                             )
                             DropdownMenuItem(
@@ -528,7 +535,7 @@ fun PortraitTabRow(
                                 },
                                 onClick = {
                                     dropDownMenu = false
-                                    navController.navigate("info_screen")
+                                    navController.navigate(Screens.INFO_SCREEN.name)
                                 }
                             )
                         }
@@ -550,10 +557,10 @@ fun PortraitTabRow(
                         }
                     }
                 }
-                1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo)
+                1 -> PlayerScreen(mediaController, visualizer, viewModel, songInfo, navController)
                 2 -> SongsScreen(songInfo, mediaController, viewModel, pagerState, context)
                 3 -> AlbumScreen(albumInfo, viewModel, navController)
-                4 -> ArtistScreen(viewModel, songInfo, mediaController, pagerState, context)
+                4 -> Artists(viewModel, songInfo, navController)
             }
         }
     }

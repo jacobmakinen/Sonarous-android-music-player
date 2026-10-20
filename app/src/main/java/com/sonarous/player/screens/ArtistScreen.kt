@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +22,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,8 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.media3.session.MediaController
+import androidx.navigation.NavController
 import com.sonarous.player.BackButtonRow
 import com.sonarous.player.MergeSort
+import com.sonarous.player.Screens
 import com.sonarous.player.ScrollBar
 import com.sonarous.player.SongInfo
 import com.sonarous.player.Text
@@ -47,32 +48,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun ArtistScreen(
-    viewModel: PlayerViewModel,
-    songInfo: List<SongInfo>,
-    mediaController: MediaController?,
-    pagerState: PagerState,
-    context: Context
-) {
-    val selectedArtist: MutableState<String?> = remember { mutableStateOf(null) }
-
-    if (selectedArtist.value == null) {
-        Artists(viewModel, songInfo, selectedArtist)
-    } else {
-        ArtistSongs(selectedArtist, songInfo, viewModel, mediaController, pagerState, context)
-    }
-}
-
-@Composable
 fun ArtistSongs(
-    artist: MutableState<String?>,
+    artist: String,
     songs: List<SongInfo>,
     viewModel: PlayerViewModel,
     mediaController: MediaController?,
-    pagerState: PagerState,
-    context: Context
+    context: Context,
+    navController: NavController
 ) {
-    val artistSongs = getArtistSongs(artist.value!!, songs)
+    val artistSongs = getArtistSongs(artist, songs)
 
     val mediaItemList by remember {
         derivedStateOf {
@@ -92,7 +76,11 @@ fun ArtistSongs(
             mediaController?.seekTo(i, 0L)
             mediaController?.play()
 
-            pagerState.requestScrollToPage(1)
+            navController.navigate(Screens.PAGER.name) {
+                popUpTo(navController.graph.startDestinationId) {
+                    inclusive = true
+                }
+            }
             viewModel.showSearchBar = false
             viewModel.queuedSongs = artistSongs.toMutableStateList()
             viewModel.updateSongDuration((artistSongs[i].duration).toLong())
@@ -102,9 +90,12 @@ fun ArtistSongs(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .windowInsetsPadding(WindowInsets.displayCutout)
     ) {
-        BackButtonRow(viewModel, text = artist.value) {
-            artist.value = null
+        BackButtonRow(viewModel, text = artist) {
+            navController.popBackStack()
         }
         Box {
             Row(
@@ -149,7 +140,11 @@ fun ArtistSongs(
 }
 
 @Composable
-fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist: MutableState<String?>) {
+fun Artists(
+    viewModel: PlayerViewModel,
+    songInfo: List<SongInfo>,
+    navController: NavController
+) {
     val artists = remember(songInfo) { MergeSort.sort(getArtists(songInfo)) }
     val lazyColumnState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0,
@@ -194,11 +189,10 @@ fun Artists(viewModel: PlayerViewModel, songInfo: List<SongInfo>, selectedArtist
                     .padding(5.dp),
                 state = lazyColumnState
             ) {
-                items(
-                    ( if (searchText.value == "") artists else searchedArtists)
-                ) { name ->
+                items(if (searchText.value == "") artists else searchedArtists) { name ->
                     TitleRowButton(name, viewModel) {
-                        selectedArtist.value = name
+                        viewModel.selectedArtist = name
+                        navController.navigate(Screens.ARTIST_SONGS.name)
                     }
                 }
             }

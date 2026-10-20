@@ -38,6 +38,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.sonarous.player.AlbumInfo
 import com.sonarous.player.AlbumScreenText
+import com.sonarous.player.Screens
 import com.sonarous.player.ScrollBar
 import com.sonarous.player.components.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
@@ -155,7 +156,7 @@ fun AlbumRow(
                     albumWidth
                 ) {
                     viewModel.selectedAlbum = albumInfo[rowIndex * elementsPerRow + index].albumName
-                    navController.navigate("album_songs_screen")
+                    navController.navigate(Screens.ALBUM_SONGS.name)
                 }
             }
         }
@@ -169,7 +170,7 @@ fun AlbumRow(
                     albumWidth
                 ) {
                     viewModel.selectedAlbum = albumInfo[rowIndex * elementsPerRow + index].albumName
-                    navController.navigate("album_songs_screen")
+                    navController.navigate(Screens.ALBUM_SONGS.name)
                 }
             }
         }
@@ -183,7 +184,7 @@ fun AlbumRow(
                     albumWidth
                 ) {
                     viewModel.selectedAlbum = albumInfo[rowIndex * elementsPerRow + index].albumName
-                    navController.navigate("album_songs_screen")
+                    navController.navigate(Screens.ALBUM_SONGS.name)
                 }
             }
         }

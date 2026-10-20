@@ -11,6 +11,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,11 +74,13 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
+import androidx.navigation.NavController
 import com.sonarous.player.LargeText
 import com.sonarous.player.MiscText
 import com.sonarous.player.PlayerLargeText
 import com.sonarous.player.PlayerText
 import com.sonarous.player.R
+import com.sonarous.player.Screens
 import com.sonarous.player.SongInfo
 import com.sonarous.player.Text
 import com.sonarous.player.Visualizer
@@ -93,12 +96,13 @@ fun PlayerScreen(
     mediaController: MediaController?,
     audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
-    songInfo: List<SongInfo>
+    songInfo: List<SongInfo>,
+    navController: NavController
 ) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
-        PortraitPlayer(mediaController, audioProcessor, viewModel, songInfo)
+        PortraitPlayer(mediaController, audioProcessor, viewModel, songInfo, navController)
     } else {
-        HorizontalPlayer(mediaController, audioProcessor, viewModel, songInfo)
+        HorizontalPlayer(mediaController, audioProcessor, viewModel, songInfo, navController)
     }
 }
 
@@ -109,7 +113,8 @@ fun PortraitPlayer(
     mediaController: MediaController?,
     audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
-    songInfo: List<SongInfo>
+    songInfo: List<SongInfo>,
+    navController: NavController
 ) {
     Column(
         modifier = Modifier
@@ -121,7 +126,7 @@ fun PortraitPlayer(
             modifier = Modifier
                 .height(10.dp)
         )
-        PlayingMediaInfo(viewModel)
+        PlayingMediaInfo(viewModel, navController)
         PlaybackControls(mediaController, viewModel)
         if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_EMERGENCY) {
             ThermalVisualizerWarning(viewModel)
@@ -156,7 +161,9 @@ fun ThermalVisualizerWarning(viewModel: PlayerViewModel) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painterResource(R.drawable.thermal_alert), null, tint = viewModel.iconColor, modifier = Modifier.size(40.dp).offset(10.dp))
+            Icon(painterResource(R.drawable.thermal_alert), null, tint = viewModel.iconColor, modifier = Modifier
+                .size(40.dp)
+                .offset(10.dp))
             ThermalBar()
         }
     }
@@ -246,7 +253,8 @@ fun HorizontalPlayer(
     mediaController: MediaController?,
     audioProcessor: PlayerService.AudioVisualizerProcessor,
     viewModel: PlayerViewModel,
-    songInfo: List<SongInfo>
+    songInfo: List<SongInfo>,
+    navController: NavController
 ) {
     Spacer(Modifier.width(10.dp))
     Row(
@@ -265,7 +273,7 @@ fun HorizontalPlayer(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(5.dp))
-            HorizontalPlayingMediaInfo(viewModel)
+            HorizontalPlayingMediaInfo(viewModel, navController)
             PlaybackControls(mediaController, viewModel, 46.dp)
             SeekBarAndOtherControls(viewModel, mediaController, songInfo, audioProcessor)
             if (viewModel.thermalStatus >= PowerManager.THERMAL_STATUS_SEVERE) {
@@ -321,44 +329,55 @@ fun AlbumArtHorizontalOrientation(viewModel: PlayerViewModel) {
 }
 
 @Composable
-fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel) {
+fun HorizontalPlayingMediaInfo(viewModel: PlayerViewModel, navController: NavController) {
     // Song name
     PlayerLargeText(
-        text = (
-                try {
-                    viewModel.queuedSongs[viewModel.songIndex].name
-                } catch (_: IndexOutOfBoundsException) {
-                    ""
-                }
-                ),
+        text = (try {
+            viewModel.queuedSongs[viewModel.songIndex].name
+        } catch (_: IndexOutOfBoundsException) {
+            ""
+        }),
         viewModel = viewModel
     )
-    Spacer(
-        modifier = Modifier
-            .height(5.dp)
-    )
+    Spacer(modifier = Modifier.height(5.dp))
     // Artist name
     PlayerText(
-        try {
+        text = (try {
             viewModel.queuedSongs[viewModel.songIndex].artist
         } catch (_: IndexOutOfBoundsException) {
             ""
+        }),
+        modifier = Modifier.clickable {
+            viewModel.selectedArtist = try {
+                viewModel.queuedSongs[viewModel.songIndex].artist
+            } catch (_: IndexOutOfBoundsException) {
+                ""
+            }
+            navController.navigate(Screens.ARTIST_SONGS.name)
         },
         viewModel = viewModel
     )
     // Album name
     PlayerText(
-        try {
+        text = (try {
             viewModel.queuedSongs[viewModel.songIndex].album
         } catch (_: IndexOutOfBoundsException) {
             ""
+        }),
+        modifier = Modifier.clickable {
+            viewModel.selectedAlbum = try {
+                viewModel.queuedSongs[viewModel.songIndex].album
+            } catch (_: IndexOutOfBoundsException) {
+                ""
+            }
+            navController.navigate(Screens.ALBUM_SONGS.name)
         },
         viewModel = viewModel
     )
 }
 
 @Composable
-fun PlayingMediaInfo(viewModel: PlayerViewModel) {
+fun PlayingMediaInfo(viewModel: PlayerViewModel, navController: NavController) {
     // Album art
     Image(
         bitmap = (
@@ -400,6 +419,14 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
                     ""
                 }
                 ),
+        modifier = Modifier.clickable {
+            viewModel.selectedArtist = try {
+                viewModel.queuedSongs[viewModel.songIndex].artist
+            } catch (_: IndexOutOfBoundsException) {
+                ""
+            }
+            navController.navigate(Screens.ARTIST_SONGS.name)
+        },
         viewModel = viewModel
     )
     // Album name
@@ -411,6 +438,14 @@ fun PlayingMediaInfo(viewModel: PlayerViewModel) {
                     ""
                 }
                 ),
+        modifier = Modifier.clickable {
+            viewModel.selectedAlbum = try {
+                viewModel.queuedSongs[viewModel.songIndex].album
+            } catch (_: IndexOutOfBoundsException) {
+                ""
+            }
+            navController.navigate(Screens.ALBUM_SONGS.name)
+        },
         viewModel = viewModel
     )
 }

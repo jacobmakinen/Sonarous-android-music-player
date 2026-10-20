@@ -55,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.sonarous.player.ui.theme.LcdGrey
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
@@ -63,12 +62,14 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.sonarous.player.LargeText
 import com.sonarous.player.NavHostBackButtonRow
-import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.R
+import com.sonarous.player.Screens
 import com.sonarous.player.SettingsData
 import com.sonarous.player.SettingsManager
 import com.sonarous.player.Text
+import com.sonarous.player.components.PlayerViewModel
 import com.sonarous.player.increaseBrightness
+import com.sonarous.player.ui.theme.LcdGrey
 import com.sonarous.player.ui.theme.shareTechFont
 
 @Composable
@@ -100,7 +101,7 @@ fun Settings(navController: NavController, viewModel: PlayerViewModel) {
                         .height(25.dp)
                         .clickable(
                             onClick = {
-                                navController.navigate("theme_change")
+                                navController.navigate(Screens.THEME_CHANGE.name)
                             }
                         ),
                     horizontalArrangement = Arrangement.Start,
@@ -372,7 +373,7 @@ fun CustomColorButton(
             .padding(horizontal = 5.dp)
             .border(0.dp, viewModel.iconColor),
         onClick = {
-            navController.navigate("color_picker")
+            navController.navigate(Screens.COLOR_PICKER.name)
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = viewModel.backgroundColor,

@@ -33,6 +33,7 @@ class PlayerViewModel : ViewModel() {
     var currentSongPosition by mutableFloatStateOf((0f)) // Current position in song
     var songIndex by mutableIntStateOf(0)
     var selectedAlbum by mutableStateOf("")
+    var selectedArtist by mutableStateOf("")
     var shuffledAlbumSongInfo = mutableListOf<SongInfo>()
     var queuedSongs = mutableStateListOf<SongInfo>()
     var shuffleSongInfo = listOf<SongInfo>()
