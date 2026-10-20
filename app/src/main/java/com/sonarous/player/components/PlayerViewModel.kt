@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.media3.common.MediaMetadata
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
 import com.sonarous.player.AlbumInfo
 import com.sonarous.player.SettingsManager
@@ -40,7 +42,7 @@ class PlayerViewModel : ViewModel() {
     var isPlaying by mutableStateOf(false)
     var playingFromSongsScreen by mutableStateOf(true)
     var shuffleMode by mutableStateOf(false)
-    var repeatMode by mutableStateOf("normal")
+    var repeatMode by mutableIntStateOf(ExoPlayer.REPEAT_MODE_ALL)
     var queueingSongs by mutableStateOf(false)
     //============================ Colours ===========================
     var backgroundColor = LcdGrey

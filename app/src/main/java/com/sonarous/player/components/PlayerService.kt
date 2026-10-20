@@ -56,6 +56,8 @@ class PlayerService : MediaSessionService() {
             .setWakeMode(C.WAKE_MODE_LOCAL)
             .build()
 
+        player.repeatMode = ExoPlayer.REPEAT_MODE_ALL
+
         // Allows the media "chip" to show
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP

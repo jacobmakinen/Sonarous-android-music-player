@@ -558,19 +558,19 @@ fun RepeatControls(mediaController: MediaController?, viewModel: PlayerViewModel
     IconButton( // Repeat controls
         onClick = {
             when (viewModel.repeatMode) {
-                "normal" -> {
+                ExoPlayer.REPEAT_MODE_OFF -> {
                     mediaController?.repeatMode = ExoPlayer.REPEAT_MODE_ALL
-                    viewModel.repeatMode = "repeatQueue"
+                    viewModel.repeatMode = ExoPlayer.REPEAT_MODE_ALL
                 }
 
-                "repeatQueue" -> {
+                ExoPlayer.REPEAT_MODE_ALL -> {
                     mediaController?.repeatMode = ExoPlayer.REPEAT_MODE_ONE
-                    viewModel.repeatMode = "repeatSong"
+                    viewModel.repeatMode = ExoPlayer.REPEAT_MODE_ONE
                 }
 
-                "repeatSong" -> {
+                ExoPlayer.REPEAT_MODE_ONE -> {
                     mediaController?.repeatMode = ExoPlayer.REPEAT_MODE_OFF
-                    viewModel.repeatMode = "normal"
+                    viewModel.repeatMode = ExoPlayer.REPEAT_MODE_OFF
                 }
             }
         },
@@ -586,9 +586,9 @@ fun RepeatControls(mediaController: MediaController?, viewModel: PlayerViewModel
             Icon(
                 painter = (
                         when (viewModel.repeatMode) {
-                            "normal" -> painterResource(R.drawable.repeat)
-                            "repeatQueue" -> painterResource(R.drawable.repeat_on)
-                            "repeatSong" -> painterResource(R.drawable.repeat_one_on)
+                            ExoPlayer.REPEAT_MODE_OFF -> painterResource(R.drawable.repeat)
+                            ExoPlayer.REPEAT_MODE_ALL -> painterResource(R.drawable.repeat_on)
+                            ExoPlayer.REPEAT_MODE_ONE -> painterResource(R.drawable.repeat_one_on)
                             else -> painterResource(R.drawable.repeat)
                         }
                         ),
